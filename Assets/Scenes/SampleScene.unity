@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &179048568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 179048569}
+  m_Layer: 0
+  m_Name: Titik Spawn 3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &179048569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179048568}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 13, y: 0, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 545152147}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,6 +281,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 333801890}
+  - component: {fileID: 333801891}
   m_Layer: 0
   m_Name: ManajerEquipment
   m_TagString: Untagged
@@ -272,6 +304,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &333801891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 333801889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b41ae44c357e7ef4584afbaf89659f99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponEquipped: {fileID: 0}
+  defaultWeapon: {fileID: 11400000, guid: 461958d9615b69643a1d02558ba8dbbc, type: 2}
+  headEquipped: {fileID: 0}
+  shieldEquipped: {fileID: 0}
+  armEquipped: {fileID: 0}
+  bodyEquipped: {fileID: 0}
+  legsEquipped: {fileID: 0}
+  ringEquipped: {fileID: 0}
+  slotWpn: {fileID: 0}
+  slotHead: {fileID: 0}
+  slotShield: {fileID: 0}
+  slotArm: {fileID: 0}
+  slotBody: {fileID: 0}
+  slotLegs: {fileID: 0}
+  slotRing: {fileID: 0}
+  nullHead: {fileID: 0}
+  nullShield: {fileID: 0}
+  nullArm: {fileID: 0}
+  nullBody: {fileID: 0}
+  nullLegs: {fileID: 0}
+  nullRing: {fileID: 0}
 --- !u!1 &370015551
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,6 +385,13 @@ MonoBehaviour:
   walkableTile: {fileID: 11400000, guid: 7dce8be328329fb42bd3eb3180935c01, type: 2}
   protectedTile: {fileID: 11400000, guid: 9f5a31c67651bbd4882f9eecf318a25c, type: 2}
   pathList: []
+  stopAutoWalk: 0
+  canControlWalk: 1
+  depan: 0
+  belakang: 0
+  kiri: 0
+  kanan: 0
+  targetPos: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,6 +507,51 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
+--- !u!1 &439308320
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 439308321}
+  - component: {fileID: 439308322}
+  m_Layer: 0
+  m_Name: ManajerLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &439308321
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439308320}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &439308322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439308320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2c85da1656966c4bbecd60498fd820e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  expTable: 050000000d0000001700000023000000300000003d0000004c0000005c0000006c0000007e00000090000000a2000000b5000000c9000000de000000f3000000080100001e010000340100004b010000630100007b01000093010000ac010000c5010000df010000f9010000130200002e0200004902000064020000800200009c020000b9020000d6020000f3020000100300002e0300004c0300006b03000089030000a9030000c8030000e8030000070400002804000048040000690400008a040000ab040000cd040000ef040000110500003305000056050000790500009c050000c0050000e3050000070600002b060000500600007406000099060000be060000e3060000090700002f070000550700007b070000a1070000c8070000ef070000160800003d080000640800008c080000b4080000dc080000040900002d090000560900007e090000a8090000d1090000fa090000240a00004e0a0000780a0000a20a0000cd0a0000f70a0000220b00004d0b0000780b0000a40b0000cf0b0000fb0b0000270c0000530c00007f0c0000ab0c0000d80c0000050d0000320d00005f0d00008c0d0000ba0d0000e70d0000150e0000430e0000710e0000a00e0000ce0e0000fd0e00002b0f00005a0f0000890f0000b90f0000e80f0000181000004710000077100000a7100000d81000000811000039110000691100009a110000cb110000fc1100002d1200005f12000090120000c2120000f412000026130000581300008b130000bd130000f0130000221400005514000088140000bb140000ef14000022150000561500008a150000bd150000f1150000261600005a1600008e160000c3160000f81600002c1700006117000096170000cc17000001180000371800006c180000a2180000d81800000e190000441900007a190000b1190000e71900001e1a0000551a00008c1a0000c31a0000fa1a0000311b0000691b0000a01b0000d81b0000101c0000481c0000801c0000b81c0000f01c0000291d0000611d00009a1d0000d31d00000c1e0000451e00007e1e0000b71e0000f01e00002a1f0000641f00009d1f0000d71f0000112000004b20000086200000c0200000fa2000003521000070210000aa210000e5210000202200005b22000097220000d22200000e2300004923000085230000c1230000fd2300003924000075240000b1240000ed2400002a25000067250000a3250000e02500001d2600005a26000097260000d4260000122700004f2700008d270000cb270000082800004628000084280000c2280000012900003f2900007d290000bc290000fa290000392a0000782a0000b72a0000f62a0000352b0000742b0000b42b0000f32b0000332c0000732c0000b22c0000f22c0000322d0000722d0000b22d0000f32d0000332e0000742e0000b42e0000f52e0000362f0000762f0000b72f0000f82f00003a3000007b300000bc300000fe3000003f31000081310000c3310000053200004732000089320000cb3200000d3300004f33000092330000d4330000173400005a3400009c340000df3400002235000066350000a9350000ec3500002f36000073360000b6360000fa3600003e37000082370000c63700000a3800004e38000092380000d63800001b3900005f390000
 --- !u!1 &545152146
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,8 +561,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 545152147}
+  - component: {fileID: 545152148}
   m_Layer: 0
-  m_Name: ManajerEnemySpawner
+  m_Name: ManajerEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -462,10 +580,31 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1578521158}
+  - {fileID: 1180635303}
+  - {fileID: 179048569}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &545152148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 545152146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9a52a99a2d0316469f66bbed4c6c5a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyPrefabs: []
+  spawnPoints:
+  - {fileID: 1578521158}
+  - {fileID: 1180635303}
+  spawnRate: 2
+  maxEnemies: 5
 --- !u!1 &576995753
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,9 +615,10 @@ GameObject:
   m_Component:
   - component: {fileID: 576995754}
   - component: {fileID: 576995755}
+  - component: {fileID: 576995756}
   m_Layer: 0
   m_Name: Pemain
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -497,7 +637,7 @@ Transform:
   m_Children:
   - {fileID: 1698397837}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &576995755
 MonoBehaviour:
@@ -515,6 +655,44 @@ MonoBehaviour:
   walkableTile: {fileID: 11400000, guid: 7dce8be328329fb42bd3eb3180935c01, type: 2}
   protectedTile: {fileID: 11400000, guid: 9f5a31c67651bbd4882f9eecf318a25c, type: 2}
   pathList: []
+  stopAutoWalk: 0
+  canControlWalk: 1
+  depan: 0
+  belakang: 0
+  kiri: 0
+  kanan: 0
+  targetPos: {x: 0, y: 0, z: 0}
+--- !u!114 &576995756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576995753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2bd5c67ca5c8f146ab11bb950c338e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterSO: {fileID: 11400000, guid: cd1324f61b812d64189250ac3f577ac8, type: 2}
+  healthSlider: {fileID: 0}
+  manaSlider: {fileID: 0}
+  expSlider: {fileID: 0}
+  userNameText: {fileID: 0}
+  healthText: {fileID: 0}
+  lvlText: {fileID: 0}
+  goldText: {fileID: 0}
+  expText: {fileID: 0}
+  enemyCollide: []
+  intervalAttack: 2
+  enemyToAttack: {fileID: 0}
+  panelPick: {fileID: 0}
+  yesPick: {fileID: 0}
+  noPick: {fileID: 0}
+  isRegen: 0
+  isCollide: 0
+  attacking: 0
+  isInTrigger: 0
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,6 +742,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1180635302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1180635303}
+  m_Layer: 0
+  m_Name: Titik Spawn 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1180635303
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180635302}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 8, y: 0, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 545152147}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1540516607
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,6 +782,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1540516608}
+  - component: {fileID: 1540516609}
   m_Layer: 0
   m_Name: ManajerInventory
   m_TagString: Untagged
@@ -595,6 +805,84 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1540516609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1540516607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e95cc7a3120d44e901d4fc5f6872c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventory: {fileID: 0}
+  slotTas: {fileID: 0}
+  slotParent: {fileID: 0}
+  character: {fileID: 0}
+--- !u!1 &1578521157
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1578521158}
+  m_Layer: 0
+  m_Name: Titik Spawn 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1578521158
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578521157}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 8, y: 0, z: 5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 545152147}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1612847809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1612847810}
+  m_Layer: 0
+  m_Name: ManajerShop
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1612847810
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1612847809}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1698397836
 GameObject:
   m_ObjectHideFlags: 0
@@ -609,7 +897,7 @@ GameObject:
   - component: {fileID: 1698397838}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

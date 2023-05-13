@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 269c294eedaefec4ab69a69983ca92a6, type: 3}
+  m_Name: DefaultWeapon
+  m_EditorClassIdentifier: 
+  itemType: 0
+  consume: 1
+  itemName: Default
+  itemDesc: Default
+  prefab: {fileID: 0}
+  itemIcon: {fileID: 0}
+  hargaBeli: 0
+  hargaJual: 0
+  levelUnlock: 1
+  job: 0
+  manaCost: 0
+  elementAttack:
+  - attackName: Default
+    element: 0
+    amountDamage: 2
+    damagePrefab: {fileID: 0}
+    prefabDestroyTime: 1.5
+  chanceRate: 0
+  criticalRate: 0
+  goldRate: 0
+  expRate: 0
