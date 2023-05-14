@@ -35,7 +35,8 @@ public class ManajerInventory : MonoBehaviour
         {
             foreach (Transform child in slotParent)
             {
-                GameObject.Destroy(child.gameObject);
+                //GameObject.Destroy(child.gameObject);
+                Destroy(child.gameObject,0f);
             }
         }
         for(int i = 0; i < inventory.tas.Count; i++)

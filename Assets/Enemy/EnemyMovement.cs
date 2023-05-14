@@ -1,140 +1,60 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
-public class AutoGridWalk : MonoBehaviour
+
+public class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] Joystick joystick;
     public Tilemap tilemap; // Tilemap yang akan digunakan untuk pathfinding
+    Enemy enemy;
     public TileBase walkableTile, protectedTile; // Tile yang dianggap sebagai jalur yang bisa dilewati
     private TilemapCollider2D tilemapCollider;
     private Grid grid;
-    private float gridSize = 1f;
-    private float moveSpeed = 2f;
-    private float moveDelay = 0f;
     [SerializeField] List<Vector3Int> pathList;
     private Coroutine moveToPathCoroutine;
-    [SerializeField] private bool stopAutoWalk = false;
-    [SerializeField] private bool canControlWalk = true; 
-    [SerializeField] private bool depan, belakang, kiri, kanan;
-    private Vector3 lookDirection = Vector3.forward;
-    [SerializeField] private Vector3 targetPos;
-    [SerializeField] private bool isCollide;
-    Rigidbody rb;
+    [SerializeField] float moveDelay;
+    [SerializeField] Vector3Int randomDest, prevDest;
+    [SerializeField] bool started;
+    [SerializeField] int countAttempt, maxAttempt;
+
     private void Awake()
     {
+        tilemap = GameObject.Find("Grid").GetComponentInChildren<Tilemap>();
         tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
         grid = tilemap.GetComponentInParent<Grid>();
-        targetPos = transform.position;
-        rb = GetComponent<Rigidbody>();
+    }
+    private void Start() 
+    {
+        enemy = this.gameObject.GetComponent<Enemy>();    
+        started = false;
+        StartCoroutine(EnemyAIMove());
     }
 
-    private void Update() 
+    private IEnumerator EnemyAIMove()
     {
-        float inputHorizontal = joystick.inputVector.x;
-        float inputVertical = joystick.inputVector.z;
-        if(Input.GetMouseButtonDown(0) && canControlWalk && !EventSystem.current.IsPointerOverGameObject())
+        while (started == false)
         {
-            stopAutoWalk = false;
-            Vector3 clickPos = Input.mousePosition;
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(clickPos);
-            Vector3Int tilePos = tilemap.WorldToCell(worldPos);
-            //Debug.Log(clickPos +"    " + worldPos +"    "+ tilePos);
-            if (tilemap.HasTile(tilePos) && (tilemap.GetTile(tilePos) == walkableTile || tilemap.GetTile(tilePos) == protectedTile)) 
+            SeekRandomPath();
+            yield return null;
+            Vector3Int tilePosition = tilemap.WorldToCell(randomDest);
+            if (tilemap.HasTile(tilePosition) && tilemap.GetTile(tilePosition) == walkableTile)
             {
                 // Jika tile yang ditekan adalah tile yang bisa dilewati,
                 // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
                 Vector3Int startCell = grid.WorldToCell(transform.position);
-                Vector3Int endCell = tilePos;
+                Vector3Int endCell = tilePosition;
                 StartPathfinding(startCell, endCell);
-            }
-        } else if(inputHorizontal != 0 || inputVertical != 0 && canControlWalk)
-        {
-            stopAutoWalk = true;
-            if(Mathf.Abs(inputHorizontal)> Mathf.Abs(inputVertical))
-                {
-                inputVertical = 0;
-            } else if(Mathf.Abs(inputHorizontal) < Mathf.Abs(inputVertical))
+                prevDest = startCell;
+                //Debug.Log("executed");
+                yield return new WaitForSeconds(enemy.enemySO.enemyIntervalMove);
+            } else
             {
-                inputHorizontal = 0;
-            }
-
-            // ubah arah pandangan
-            if (inputHorizontal > 0)
-            {
-                lookDirection = Vector3.right;
-                inputVertical = 0; // set inputVertical menjadi 0 agar tidak bisa bergerak vertical
-            }
-            else if (inputHorizontal < 0)
-            {
-                lookDirection = Vector3.left;
-                inputVertical = 0;
-            }
-
-            if (inputVertical > 0)
-            {
-                lookDirection = Vector3.forward;
-                inputHorizontal = 0; // set inputHorizontal menjadi 0 agar tidak bisa bergerak horizontal
-            }
-            else if (inputVertical < 0)
-            {
-                lookDirection = Vector3.back;
-                inputHorizontal = 0;
-            }
-
-            // ubah targetPosition sesuai arah pandangan
-            if ((transform.position - targetPos).magnitude < 0.1f)
-            {
-                if (inputHorizontal > 0 && !kanan)
-                {
-                    targetPos += Vector3.right * gridSize;
-                }
-                if (inputHorizontal < 0 && !kiri)
-                {
-                    targetPos += Vector3.left * gridSize;
-                }
-
-                if (inputVertical > 0 && !depan)
-                {
-                    targetPos += Vector3.forward * gridSize;
-                }
-                if (inputVertical < 0 && !belakang)
-                {
-                    targetPos += Vector3.back * gridSize;
-                }
+                countAttempt++;
             }
         }
-        Vector3Int targetTilePos = tilemap.WorldToCell(targetPos);
-        if(Vector3.Distance(transform.position, targetPos) > 0.01f && stopAutoWalk && transform.position != targetPos && (tilemap.HasTile(targetTilePos) && tilemap.GetTile(targetTilePos) == walkableTile || tilemap.GetTile(targetTilePos) == protectedTile))
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
-            canControlWalk = false;
-        } else if (stopAutoWalk && transform.position != targetPos && (!tilemap.HasTile(targetTilePos) || tilemap.GetTile(targetTilePos) != walkableTile || tilemap.GetTile(targetTilePos) != protectedTile))
-        {
-            RoundPosition();
-            targetPos = transform.position;
-        } else if (isCollide)
-        {
-            RoundPosition();
-            targetPos = transform.position;         
-        }
-        else if (targetPos == transform.position)
-        {
-            canControlWalk = true;
-        }
+        yield return null;
     }
-
-    private void RoundPosition()
-    {
-        Vector3 newPosition = transform.position;
-        newPosition.x = Mathf.Round(newPosition.x / gridSize) * gridSize;
-        newPosition.y = Mathf.Round(newPosition.y / gridSize) * gridSize;
-        newPosition.z = Mathf.Round(newPosition.z / gridSize) * gridSize;
-        transform.position = newPosition;
-    }
-
+    
     private List<Vector3Int> FindPath(Vector3Int start, Vector3Int end)
     {
         List<Vector3Int> path = new List<Vector3Int>();
@@ -185,7 +105,7 @@ public class AutoGridWalk : MonoBehaviour
             {
                 TileBase tile = tilemap.GetTile(neighbor);
                 // Jika neighbor ada dalam closed list atau tidak dapat dilalui, lewati
-                if (closedList.Contains(neighbor) || tile == null)
+                if (closedList.Contains(neighbor) || tile == protectedTile || tile == null)
                 {
                     continue;
                 }
@@ -244,13 +164,27 @@ public class AutoGridWalk : MonoBehaviour
 
         return neighbors;
     }
+
     private float GetDistance(Vector3Int a, Vector3Int b)
     {
     // Menggunakan Manhattan distance sebagai heuristic
     return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
     }
 
-    public void StartPathfinding(Vector3Int start, Vector3Int end)
+    private void SeekRandomPath()
+    {
+        if(countAttempt < maxAttempt)
+        {
+            randomDest = new Vector3Int(
+            Random.Range(Mathf.FloorToInt(transform.position.x) - enemy.enemySO.enemyMoveRadius, Mathf.FloorToInt(transform.position.x) + enemy.enemySO.enemyMoveRadius),0,
+            Random.Range(Mathf.FloorToInt(transform.position.z) - enemy.enemySO.enemyMoveRadius, Mathf.FloorToInt(transform.position.z) + enemy.enemySO.enemyMoveRadius));
+        } else
+        {
+            randomDest = prevDest;
+        }
+    }
+    
+    private void StartPathfinding(Vector3Int start, Vector3Int end)
     {
         // Reset path sebelumnya jika ada
         if (moveToPathCoroutine != null)
@@ -265,10 +199,13 @@ public class AutoGridWalk : MonoBehaviour
         // Jika ditemukan path, jalankan Coroutine MoveToPath
         if (path != null)
         {
+            started = true;
             moveToPathCoroutine = StartCoroutine(MoveToPath(path));
+        } else
+        {
+            countAttempt++;
         }
     }
-
     private IEnumerator MoveToPath(List<Vector3Int> path)
     {
         // Menentukan kecepatan pergerakan karakter
@@ -277,34 +214,30 @@ public class AutoGridWalk : MonoBehaviour
         {
             // Menghitung posisi dunia dari sel pada path
             Vector3 targetPosition = tilemap.CellToWorld(path[i]);
+
             // Menggerakkan karakter secara smooth menuju target position
-            while (Vector3.Distance(transform.position, targetPosition) > 0.01f && !stopAutoWalk)
+            while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
             {
-                canControlWalk = false;
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-                targetPos = targetPosition;
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, enemy.enemySO.enemyWalkSpeed * Time.deltaTime);
                 yield return null;
             }
+
             // Menunggu sejenak sebelum melanjutkan ke sel berikutnya
             yield return new WaitForSeconds(moveDelay);
-            canControlWalk = true;
         }
-
+        //Debug.Log("selesai jalan");
         // Reset Coroutine menjadi null setelah selesai
         moveToPathCoroutine = null;
+        pathList.Clear();
+        started = false;
+        countAttempt = 0;
     }
-
     private void OnCollisionEnter(Collision other) 
     {
-        isCollide = true;
-        //rb.isKinematic = true;
-    }
-
-    private void OnCollisionExit(Collision other) 
-    {
-        isCollide = false;
-        //rb.isKinematic = true;
+        if(other.gameObject.tag == "Enemy")
+        {
+            started = false;
+            SeekRandomPath();
+        }    
     }
 }
-
-           

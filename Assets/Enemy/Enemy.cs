@@ -21,9 +21,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] bool attacking;
     Character character;
     public int curEnemyHealth;
-    [SerializeField] Slider enemyHealthSlider;
-    [SerializeField] TextMeshProUGUI enemyName;
-    [SerializeField] Image imageIcon;
+    public Color color;
     public string enemyId;
     public Vector3Int startPos, destPos, prevDest;
     BoxCollider boxCollider;
@@ -34,24 +32,17 @@ public class Enemy : MonoBehaviour
         enemyId = enemySO.enemyName+ GetInstanceID();
         gameObject.name = enemyId;
         curEnemyHealth = enemySO.enemyHealth;
-        enemyName.text = enemySO.enemyName;
         if(enemySO.enemyLevel == EnemyLevel.easy)
         {
-            imageIcon.color = Color.gray;
+            color = Color.gray;
         } else if(enemySO.enemyLevel == EnemyLevel.medium)
         {
-            imageIcon.color = Color.yellow;
+            color = Color.yellow;
         } else if(enemySO.enemyLevel == EnemyLevel.hard)
         {
-            imageIcon.color = Color.red;
+            color = Color.red;
         }
-        DisplayEnemyStat();
         enemyState = EnemyState.patroli;
-    }
-
-    private void DisplayEnemyStat()
-    {
-        enemyHealthSlider.value = (float)curEnemyHealth/ (float)enemySO.enemyHealth;
     }
 
     private void OnCollisionEnter(Collision other) 
@@ -66,7 +57,7 @@ public class Enemy : MonoBehaviour
 
     private void OnCollisionExit(Collision other) 
     {
-        if(other.gameObject.tag == "Pemain")
+        if(other.gameObject.tag == "Player")
         {
             isCollide = false;
             attacking = false;
@@ -94,7 +85,6 @@ public class Enemy : MonoBehaviour
     }    
     private void FixedUpdate()
     {
-        DisplayEnemyStat();
         if(isCollide && !attacking)
         {
             StartCoroutine(AttackingPlayer());

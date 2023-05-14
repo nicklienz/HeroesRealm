@@ -19,7 +19,7 @@ public class Shop : MonoBehaviour
 
     private void Start()
     {
-        character = GameObject.Find("Player").GetComponent<Character>();
+        character = GameObject.Find("Pemain").GetComponent<Character>();
     }
     public void BuyItem(ItemSO itemSO)
     {

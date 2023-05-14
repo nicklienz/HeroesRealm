@@ -22,6 +22,7 @@ public enum Element
 [CreateAssetMenu(fileName = "Buat Monster Baru", menuName = "HeroesRealm/Buat Monster Baru")]
 public class EnemySO : ScriptableObject
 {
+    public Sprite enemySprite;
     public string enemyName;
     public int enemyHealth;
     public float enemyMinAttackRate;

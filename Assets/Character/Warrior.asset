@@ -15,22 +15,22 @@ MonoBehaviour:
   job: 0
   userName: Nicklang
   gold: 0
-  level: 1
+  level: 13
   startHealth: 140
-  maxHealth: 0
-  currentHealth: 0
-  healthMultiplier: 0
+  maxHealth: 270
+  currentHealth: 270
+  healthMultiplier: 10
   startMana: 30
-  maxManaPoints: 0
-  currentManaPoints: 0
-  manaMultiplier: 0
-  experiencePoints: 10
-  startStr: 0
-  startDef: 0
-  startMagic: 0
-  curStr: 0
-  curDef: 0
-  curMagic: 0
+  maxManaPoints: 69
+  currentManaPoints: 69
+  manaMultiplier: 3
+  experiencePoints: 200
+  startStr: 10
+  startDef: 5
+  startMagic: 2
+  curStr: 10
+  curDef: 5
+  curMagic: 2
   strMultiplier: 0
   defMultiplier: 0
   magicMultiplier: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
   chanceRate: 0
   goldRate: 0
   expRate: 0
-  hitAtk: 0
+  hitAtk: 2
   fireAtk: 0
   iceAtk: 0
   soulAtk: 0
@@ -51,6 +51,6 @@ MonoBehaviour:
   particleCritical: {fileID: 0}
   particleMiss: {fileID: 0}
   playerDamageText: {fileID: 0}
-  regenDelay: 0
-  regenRate: 0
+  regenDelay: 6
+  regenRate: 0.05
   position: {x: 0, y: 0, z: 0}

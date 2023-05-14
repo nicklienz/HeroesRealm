@@ -8,20 +8,23 @@ using System.Linq;
 public class Character : MonoBehaviour
 {
     public CharacterSO characterSO;
-    [SerializeField] Slider healthSlider;
-    [SerializeField] Slider manaSlider;
-    [SerializeField] Slider expSlider;
-    [SerializeField] TextMeshProUGUI userNameText;
-    [SerializeField] TextMeshProUGUI healthText;
-    [SerializeField] TextMeshProUGUI lvlText;
-    [SerializeField] TextMeshProUGUI goldText;
-    [SerializeField] TextMeshProUGUI expText;
-    [SerializeField] List<Transform> enemyCollide;
-    [SerializeField] float intervalAttack;
-    [SerializeField] Enemy enemyToAttack;
-    [SerializeField] GameObject panelPick;
-    [SerializeField] Button yesPick, noPick;
-    [SerializeField] bool isRegen;
+    [SerializeField] private Slider healthSlider;
+    [SerializeField] private Slider manaSlider;
+    [SerializeField] private Slider expSlider;
+    [SerializeField] private TextMeshProUGUI userNameText;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI lvlText;
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private TextMeshProUGUI expText;
+    [SerializeField] private List<Transform> enemyCollide;
+    [SerializeField] private float intervalAttack;
+    [SerializeField] private Enemy enemyToAttack;
+    [SerializeField] private Slider enemyHealthSlider;
+    [SerializeField] private TextMeshProUGUI enemyName;
+    [SerializeField] private Image enemyIcon, enemyLevel;
+    [SerializeField] private GameObject panelPick;
+    [SerializeField] private Button yesPick, noPick;
+    [SerializeField] private bool isRegen;
     public bool isCollide, attacking, isInTrigger;
     ManajerGame manajerGame;
     
@@ -33,8 +36,8 @@ public class Character : MonoBehaviour
         HitungTotalStatusEquipment();
         CheckCharacterLevel();
         manajerGame = GameObject.Find("ManajerGame").GetComponent<ManajerGame>();
-        Button yesPick = panelPick.transform.Find("Yes").GetComponent<Button>();
-        Button noPick = panelPick.transform.Find("No").GetComponent<Button>();
+        //Button yesPick = panelPick.transform.Find("Yes").GetComponent<Button>();
+        //Button noPick = panelPick.transform.Find("No").GetComponent<Button>();
     }
     public void CheckCharacterLevel()
     {
@@ -117,7 +120,25 @@ public class Character : MonoBehaviour
             enemyCollide.Add(enemy);
         }
     }
+    private void ShowEnemyStat()
+    {
+        enemyHealthSlider.gameObject.SetActive(true);
+        enemyName.gameObject.SetActive(true);
+        enemyIcon.gameObject.SetActive(true);
+        enemyLevel.gameObject.SetActive(true);
+        enemyIcon.sprite = enemyToAttack.enemySO.enemySprite;
+        enemyLevel.color = enemyToAttack.color;
+        enemyName.text = enemyToAttack.enemySO.enemyName;
+        enemyHealthSlider.value = (float)enemyToAttack.curEnemyHealth/ (float)enemyToAttack.enemySO.enemyHealth;
+    }
+    private void HideEnemyStat()
+    {
+        enemyHealthSlider.gameObject.SetActive(false);
+        enemyName.gameObject.SetActive(false);
+        enemyIcon.gameObject.SetActive(false);
+        enemyLevel.gameObject.SetActive(false);
 
+    }
     public void RemoveEnemy(Transform enemy)
     {
         if (enemyCollide.Contains(enemy))
@@ -127,6 +148,7 @@ public class Character : MonoBehaviour
     }
     private void OnCollisionEnter(Collision other) 
     {
+        isCollide = true;
         if(other.gameObject.tag == "Tree")
         {
             ManajerNotification.Instance.messageErrorText.text = other.gameObject.name;
@@ -134,20 +156,21 @@ public class Character : MonoBehaviour
         }    
         if(other.gameObject.tag == "Enemy")
         {
-            isCollide = true;
+            ShowEnemyStat();
             AddEnemy(other.transform);
             enemyToAttack = other.gameObject.GetComponent<Enemy>();
         }    
     }
     private void OnCollisionExit(Collision other) 
     {
+        isCollide = false;
         if(other.gameObject.tag == "Enemy")
         {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
-            isCollide = false;
             attacking = false;
             RemoveEnemy(other.transform);
             enemyToAttack = null;
+            HideEnemyStat();
         }                
     }
 
