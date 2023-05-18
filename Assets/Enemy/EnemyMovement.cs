@@ -13,28 +13,30 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] List<Vector3Int> pathList;
     private Coroutine moveToPathCoroutine;
     [SerializeField] float moveDelay;
-    [SerializeField] Vector3Int randomDest, prevDest;
-    [SerializeField] bool started;
-    [SerializeField] int countAttempt, maxAttempt;
+    [SerializeField] Vector3Int spawnPos, randomDest, prevDest ,minRange, maxRange;
+    [SerializeField] bool moving;
+
+    //private Rigidbody rb;
 
     private void Awake()
     {
         tilemap = GameObject.Find("Grid").GetComponentInChildren<Tilemap>();
         tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
         grid = tilemap.GetComponentInParent<Grid>();
+        spawnPos = Vector3Int.RoundToInt(transform.position);
+        //rb = GetComponent<Rigidbody>();
     }
     private void Start() 
     {
         enemy = this.gameObject.GetComponent<Enemy>();    
-        started = false;
+        moving = false;
         StartCoroutine(EnemyAIMove());
     }
-
     private IEnumerator EnemyAIMove()
     {
-        while (started == false)
+        while (moving == false)
         {
-            SeekRandomPath();
+            StartCoroutine(SeekRandomPath());
             yield return null;
             Vector3Int tilePosition = tilemap.WorldToCell(randomDest);
             if (tilemap.HasTile(tilePosition) && tilemap.GetTile(tilePosition) == walkableTile)
@@ -47,9 +49,6 @@ public class EnemyMovement : MonoBehaviour
                 prevDest = startCell;
                 //Debug.Log("executed");
                 yield return new WaitForSeconds(enemy.enemySO.enemyIntervalMove);
-            } else
-            {
-                countAttempt++;
             }
         }
         yield return null;
@@ -171,17 +170,13 @@ public class EnemyMovement : MonoBehaviour
     return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
     }
 
-    private void SeekRandomPath()
+    private IEnumerator SeekRandomPath()
     {
-        if(countAttempt < maxAttempt)
-        {
-            randomDest = new Vector3Int(
-            Random.Range(Mathf.FloorToInt(transform.position.x) - enemy.enemySO.enemyMoveRadius, Mathf.FloorToInt(transform.position.x) + enemy.enemySO.enemyMoveRadius),0,
-            Random.Range(Mathf.FloorToInt(transform.position.z) - enemy.enemySO.enemyMoveRadius, Mathf.FloorToInt(transform.position.z) + enemy.enemySO.enemyMoveRadius));
-        } else
-        {
-            randomDest = prevDest;
-        }
+        yield return new WaitForSeconds(enemy.enemySO.enemyIntervalMove);
+        randomDest = new Vector3Int(
+        Random.Range(spawnPos.x - enemy.enemySO.enemyMoveRadius, spawnPos.x + enemy.enemySO.enemyMoveRadius),0,
+        Random.Range(spawnPos.z - enemy.enemySO.enemyMoveRadius, spawnPos.z + enemy.enemySO.enemyMoveRadius));
+        yield return null;
     }
     
     private void StartPathfinding(Vector3Int start, Vector3Int end)
@@ -199,11 +194,11 @@ public class EnemyMovement : MonoBehaviour
         // Jika ditemukan path, jalankan Coroutine MoveToPath
         if (path != null)
         {
-            started = true;
+            moving = true;
             moveToPathCoroutine = StartCoroutine(MoveToPath(path));
         } else
         {
-            countAttempt++;
+            moving = false;
         }
     }
     private IEnumerator MoveToPath(List<Vector3Int> path)
@@ -229,15 +224,6 @@ public class EnemyMovement : MonoBehaviour
         // Reset Coroutine menjadi null setelah selesai
         moveToPathCoroutine = null;
         pathList.Clear();
-        started = false;
-        countAttempt = 0;
-    }
-    private void OnCollisionEnter(Collision other) 
-    {
-        if(other.gameObject.tag == "Enemy")
-        {
-            started = false;
-            SeekRandomPath();
-        }    
+        moving = false;
     }
 }

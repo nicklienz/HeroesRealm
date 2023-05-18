@@ -19,22 +19,38 @@ public class AutoGridWalk : MonoBehaviour
     [SerializeField] private bool stopAutoWalk = false;
     [SerializeField] private bool canControlWalk = true; 
     [SerializeField] private bool depan, belakang, kiri, kanan;
-    private Vector3 lookDirection = Vector3.forward;
-    [SerializeField] private Vector3 targetPos;
+    [SerializeField] private Vector3 lookDirection = Vector3.forward;
+    [SerializeField] private Vector3 targetPos, movementDirection;
     [SerializeField] private bool isCollide;
-    Rigidbody rb;
+    [SerializeField] private float rayLength;
+    private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
+    [SerializeField] private float rotationSpeed;
+
+    //Rigidbody rb;
     private void Awake()
     {
         tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
         grid = tilemap.GetComponentInParent<Grid>();
         targetPos = transform.position;
-        rb = GetComponent<Rigidbody>();
+        //rb = GetComponent<Rigidbody>();
     }
 
     private void Update() 
     {
+        RayCheck();
+        RayVisual();
         float inputHorizontal = joystick.inputVector.x;
         float inputVertical = joystick.inputVector.z;
+        if(Mathf.Abs(inputHorizontal)> Mathf.Abs(inputVertical))
+        {
+            inputVertical = 0;
+            inputHorizontal = Mathf.Sign(inputHorizontal);
+        } else if(Mathf.Abs(inputHorizontal) < Mathf.Abs(inputVertical))
+        {
+            inputHorizontal = 0;
+            inputVertical = Mathf.Sign(inputVertical);
+        }
+
         if(Input.GetMouseButtonDown(0) && canControlWalk && !EventSystem.current.IsPointerOverGameObject())
         {
             stopAutoWalk = false;
@@ -50,57 +66,26 @@ public class AutoGridWalk : MonoBehaviour
                 Vector3Int endCell = tilePos;
                 StartPathfinding(startCell, endCell);
             }
-        } else if(inputHorizontal != 0 || inputVertical != 0 && canControlWalk)
+        } else if(inputHorizontal != 0 || inputVertical != 0 && canControlWalk || Input.anyKeyDown)
         {
             stopAutoWalk = true;
-            if(Mathf.Abs(inputHorizontal)> Mathf.Abs(inputVertical))
-                {
-                inputVertical = 0;
-            } else if(Mathf.Abs(inputHorizontal) < Mathf.Abs(inputVertical))
-            {
-                inputHorizontal = 0;
-            }
-
-            // ubah arah pandangan
-            if (inputHorizontal > 0)
-            {
-                lookDirection = Vector3.right;
-                inputVertical = 0; // set inputVertical menjadi 0 agar tidak bisa bergerak vertical
-            }
-            else if (inputHorizontal < 0)
-            {
-                lookDirection = Vector3.left;
-                inputVertical = 0;
-            }
-
-            if (inputVertical > 0)
-            {
-                lookDirection = Vector3.forward;
-                inputHorizontal = 0; // set inputHorizontal menjadi 0 agar tidak bisa bergerak horizontal
-            }
-            else if (inputVertical < 0)
-            {
-                lookDirection = Vector3.back;
-                inputHorizontal = 0;
-            }
-
             // ubah targetPosition sesuai arah pandangan
             if ((transform.position - targetPos).magnitude < 0.1f)
             {
-                if (inputHorizontal > 0 && !kanan)
+                if (inputHorizontal > 0 || Input.GetKeyDown(KeyCode.D) && !Physics.Raycast(transform.position + offsetRay, Vector3.right, rayLength))
                 {
                     targetPos += Vector3.right * gridSize;
                 }
-                if (inputHorizontal < 0 && !kiri)
+                if (inputHorizontal < 0  || Input.GetKeyDown(KeyCode.A) && !Physics.Raycast(transform.position + offsetRay, Vector3.left, rayLength))
                 {
                     targetPos += Vector3.left * gridSize;
                 }
 
-                if (inputVertical > 0 && !depan)
+                if (inputVertical > 0 || Input.GetKeyDown(KeyCode.W) && !Physics.Raycast(transform.position + offsetRay, Vector3.forward, rayLength))
                 {
                     targetPos += Vector3.forward * gridSize;
                 }
-                if (inputVertical < 0 && !belakang)
+                if (inputVertical < 0 || Input.GetKeyDown(KeyCode.S) && !Physics.Raycast(transform.position + offsetRay, Vector3.back, rayLength))
                 {
                     targetPos += Vector3.back * gridSize;
                 }
@@ -109,6 +94,8 @@ public class AutoGridWalk : MonoBehaviour
         Vector3Int targetTilePos = tilemap.WorldToCell(targetPos);
         if(Vector3.Distance(transform.position, targetPos) > 0.01f && stopAutoWalk && transform.position != targetPos && (tilemap.HasTile(targetTilePos) && tilemap.GetTile(targetTilePos) == walkableTile || tilemap.GetTile(targetTilePos) == protectedTile))
         {
+            movementDirection = targetPos - transform.position;
+            LookRotation();
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
             canControlWalk = false;
         } else if (stopAutoWalk && transform.position != targetPos && (!tilemap.HasTile(targetTilePos) || tilemap.GetTile(targetTilePos) != walkableTile || tilemap.GetTile(targetTilePos) != protectedTile))
@@ -125,7 +112,67 @@ public class AutoGridWalk : MonoBehaviour
             canControlWalk = true;
         }
     }
+    private void RayVisual()
+    {
+        Debug.DrawLine(transform.position + offsetRay,  offsetRay + transform.position + Vector3.right * rayLength, Color.red);
+        Debug.DrawLine(transform.position + offsetRay, offsetRay + transform.position + Vector3.left * rayLength, Color.black);
+        Debug.DrawLine(transform.position + offsetRay, offsetRay + transform.position + Vector3.forward * rayLength, Color.blue);
+        Debug.DrawLine(transform.position + offsetRay, offsetRay + transform.position + Vector3.back * rayLength, Color.yellow);
+    }
 
+    private void RayCheck()
+    {
+        kanan = Physics.Raycast(transform.position + offsetRay, Vector3.right, rayLength) ? true : false;
+        kiri = Physics.Raycast(transform.position + offsetRay, Vector3.left, rayLength) ? true : false;
+        depan = Physics.Raycast(transform.position + offsetRay, Vector3.forward, rayLength) ? true : false;
+        belakang = Physics.Raycast(transform.position + offsetRay, Vector3.back, rayLength) ? true : false;
+    }
+
+    private Vector3 RayCheckVector3()
+    {
+        Vector3 posisi = Vector3.zero;
+        if(kanan)
+        {
+            posisi = Vector3.right;
+        }  
+        if (kiri)
+        {
+            posisi = Vector3.left;            
+        } 
+        if (depan)
+        {
+            posisi = Vector3.forward;            
+        } 
+        if (belakang)
+        {
+            posisi = Vector3.back;            
+        }
+        return posisi;
+    }
+
+    private void LookRotation()
+    {
+        if(Mathf.Abs(movementDirection.x)> Mathf.Abs(movementDirection.z))
+        {
+            movementDirection.x = Mathf.Sign(movementDirection.x);
+            movementDirection.z = 0;
+        } else if(Mathf.Abs(movementDirection.x) < Mathf.Abs(movementDirection.z))
+        {
+            movementDirection.x = 0;
+            movementDirection.z = Mathf.Sign(movementDirection.z);
+        }
+        if (movementDirection != Vector3.zero)
+        {
+            lookDirection = movementDirection.normalized; // Normalisasi vektor gerakan menjadi vektor satuan
+        }
+
+        if (lookDirection != Vector3.zero)
+        {
+            // Membuat rotasi berdasarkan lookDirection
+            Quaternion targetRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
+            transform.GetChild(0).transform.rotation = targetRotation;
+        }
+    }
     private void RoundPosition()
     {
         Vector3 newPosition = transform.position;
@@ -281,6 +328,12 @@ public class AutoGridWalk : MonoBehaviour
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f && !stopAutoWalk)
             {
                 canControlWalk = false;
+                movementDirection = targetPosition - transform.position;
+                LookRotation();
+                if(movementDirection == RayCheckVector3())
+                {
+                    break;
+                }
                 transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
                 targetPos = targetPosition;
                 yield return null;
@@ -293,11 +346,12 @@ public class AutoGridWalk : MonoBehaviour
         // Reset Coroutine menjadi null setelah selesai
         moveToPathCoroutine = null;
     }
-
+ 
     private void OnCollisionEnter(Collision other) 
     {
         isCollide = true;
-        //rb.isKinematic = true;
+        //rb.velocity = Vector3.zero;
+        //rb.angularVelocity = Vector3.zero;
     }
 
     private void OnCollisionExit(Collision other) 
