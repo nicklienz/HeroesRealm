@@ -5,55 +5,141 @@ using UnityEngine.Tilemaps;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public Tilemap tilemap; // Tilemap yang akan digunakan untuk pathfinding
+    ManajerTiles manajerTiles;
     Enemy enemy;
-    public TileBase walkableTile, protectedTile; // Tile yang dianggap sebagai jalur yang bisa dilewati
     private TilemapCollider2D tilemapCollider;
-    private Grid grid;
     [SerializeField] List<Vector3Int> pathList;
     private Coroutine moveToPathCoroutine;
     [SerializeField] float moveDelay;
-    [SerializeField] Vector3Int spawnPos, randomDest, prevDest ,minRange, maxRange;
-    [SerializeField] bool moving;
-
-    //private Rigidbody rb;
+    [SerializeField] Vector3Int spawnPos, randomDest ,minRange, maxRange;
+    [SerializeField] bool patrol, moving, kejar, attacking;
+    [SerializeField] private float rayLength;
+    private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
+    [SerializeField] private Vector3 lookDirection, movementDirection;
 
     private void Awake()
     {
-        tilemap = GameObject.Find("Grid").GetComponentInChildren<Tilemap>();
-        tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
-        grid = tilemap.GetComponentInParent<Grid>();
+        manajerTiles = GameObject.Find("ManajerTiles").GetComponent<ManajerTiles>(); 
+        tilemapCollider = manajerTiles.tilemap.GetComponent<TilemapCollider2D>();
         spawnPos = Vector3Int.RoundToInt(transform.position);
-        //rb = GetComponent<Rigidbody>();
     }
     private void Start() 
     {
         enemy = this.gameObject.GetComponent<Enemy>();    
+        patrol = false;
         moving = false;
-        StartCoroutine(EnemyAIMove());
+        kejar = false;
+        attacking = false;
+    }
+
+    void FixedUpdate()
+    {
+        DetectPlayer();
+        CollidePlayer();
+        if(!moving && !patrol && enemy.enemyState == EnemyState.patroli)
+        {
+            patrol = true;
+            kejar = false;
+            attacking = false;
+            StartCoroutine(EnemyAIMove());
+        } else if (enemy.enemyState == EnemyState.kejar && !kejar && enemy.playerDetected != null)
+        {
+            kejar = true;
+            patrol = false;
+            attacking = false;
+            StartCoroutine(EnemyAIKejar(enemy.playerDetected.transform));
+        } else if(enemy.enemyState == EnemyState.attack && enemy.playerCollided != null && !attacking)
+        {
+            attacking = true;
+            StartCoroutine(enemy.AttackingPlayer(enemy.playerCollided.gameObject.GetComponent<Character>()));
+        }
+    }
+    private void DetectPlayer()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position + offsetRay, enemy.enemySO.enemyDetectRadius);
+        bool playerDetected = false;
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject.tag =="Player")
+            {
+                enemy.enemyState = EnemyState.kejar;
+                enemy.playerDetected = collider.transform;
+                playerDetected = true;
+                break;
+            }
+        }
+        if (!playerDetected)
+        {
+            enemy.playerDetected = null;
+            kejar = false;
+            enemy.enemyState = EnemyState.patroli;
+        }
+        
+    }
+    private void CollidePlayer()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position + offsetRay, 0.5f);
+        bool playerCollided = false;
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("Player"))
+            {
+                enemy.enemyState = EnemyState.attack;
+                enemy.playerCollided = collider.transform;
+                playerCollided = true;
+                break;
+            }
+        }
+        if(!playerCollided)
+        {
+            enemy.playerCollided = null;
+            kejar = false;
+        }
+        
+    }    
+    private void OnDrawGizmosSelected()
+    {
+        // Draw a wire sphere in the Unity Editor to visualize the detection radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + offsetRay, enemy.enemySO.enemyDetectRadius);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position + offsetRay, 0.5f);
     }
     private IEnumerator EnemyAIMove()
     {
-        while (moving == false)
+        while (!moving && patrol)
         {
             StartCoroutine(SeekRandomPath());
             yield return null;
-            Vector3Int tilePosition = tilemap.WorldToCell(randomDest);
-            if (tilemap.HasTile(tilePosition) && tilemap.GetTile(tilePosition) == walkableTile)
+            Vector3Int tilePosition = manajerTiles.tilemap.WorldToCell(randomDest);
+            if (manajerTiles.tilemap.HasTile(tilePosition) && manajerTiles.tilemap.GetTile(tilePosition) == manajerTiles.walkableTile)
             {
                 // Jika tile yang ditekan adalah tile yang bisa dilewati,
                 // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
-                Vector3Int startCell = grid.WorldToCell(transform.position);
+                Vector3Int startCell = manajerTiles.grid.WorldToCell(transform.position);
                 Vector3Int endCell = tilePosition;
                 StartPathfinding(startCell, endCell);
-                prevDest = startCell;
                 //Debug.Log("executed");
                 yield return new WaitForSeconds(enemy.enemySO.enemyIntervalMove);
             }
         }
         yield return null;
     }
-    
+    private IEnumerator EnemyAIKejar(Transform playerTransform)
+    {
+        Vector3Int tilePosition = manajerTiles.tilemap.WorldToCell(playerTransform.position);
+        if (manajerTiles.tilemap.HasTile(tilePosition) && manajerTiles.tilemap.GetTile(tilePosition) == manajerTiles.walkableTile)
+        {
+            // Jika tile yang ditekan adalah tile yang bisa dilewati,
+            // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
+            Vector3Int startCell = manajerTiles.grid.WorldToCell(transform.position);
+            Vector3Int endCell = tilePosition;
+            StartPathfinding(startCell, endCell);
+        }
+        yield return null;
+    }    
+
     private List<Vector3Int> FindPath(Vector3Int start, Vector3Int end)
     {
         List<Vector3Int> path = new List<Vector3Int>();
@@ -102,9 +188,9 @@ public class EnemyMovement : MonoBehaviour
             // Loop melalui tetangga-tetangga current
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                TileBase tile = tilemap.GetTile(neighbor);
+                TileBase tile = manajerTiles.tilemap.GetTile(neighbor);
                 // Jika neighbor ada dalam closed list atau tidak dapat dilalui, lewati
-                if (closedList.Contains(neighbor) || tile == protectedTile || tile == null)
+                if (closedList.Contains(neighbor) || tile == manajerTiles.protectedTile || tile == null)
                 {
                     continue;
                 }
@@ -199,6 +285,8 @@ public class EnemyMovement : MonoBehaviour
         } else
         {
             moving = false;
+            patrol = false;
+            kejar = false;
         }
     }
     private IEnumerator MoveToPath(List<Vector3Int> path)
@@ -208,22 +296,57 @@ public class EnemyMovement : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             // Menghitung posisi dunia dari sel pada path
-            Vector3 targetPosition = tilemap.CellToWorld(path[i]);
+            Vector3 targetPosition = manajerTiles.tilemap.CellToWorld(path[i]);
 
             // Menggerakkan karakter secara smooth menuju target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, enemy.enemySO.enemyWalkSpeed * Time.deltaTime);
+                RaycastHit hit;
+                if (Physics.Raycast(transform.position + offsetRay, targetPosition - transform.position, out hit, Vector3.Distance(transform.position, targetPosition)))
+                {
+                    // Jika pemain bersentuhan dengan sesuatu, hentikan pergerakan
+                    moving = false;
+                    yield break;
+                }
+                movementDirection = targetPosition - transform.position;
+                LookRotation();
+                Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, enemy.enemySO.enemyWalkSpeed * Time.deltaTime);
+                newPos.y = transform.position.y;
+                transform.position = newPos;
                 yield return null;
             }
 
             // Menunggu sejenak sebelum melanjutkan ke sel berikutnya
             yield return new WaitForSeconds(moveDelay);
         }
-        //Debug.Log("selesai jalan");
         // Reset Coroutine menjadi null setelah selesai
         moveToPathCoroutine = null;
         pathList.Clear();
         moving = false;
+        patrol = false;
+        kejar = false;
+    }
+    private void LookRotation()
+    {
+        if(Mathf.Abs(movementDirection.x)> Mathf.Abs(movementDirection.z))
+        {
+            movementDirection.x = Mathf.Sign(movementDirection.x);
+            movementDirection.z = 0;
+        } else if(Mathf.Abs(movementDirection.x) < Mathf.Abs(movementDirection.z))
+        {
+            movementDirection.x = 0;
+            movementDirection.z = Mathf.Sign(movementDirection.z);
+        }
+        if (movementDirection != Vector3.zero)
+        {
+            lookDirection = movementDirection.normalized; // Normalisasi vektor gerakan menjadi vektor satuan
+        }
+
+        if (lookDirection != Vector3.zero)
+        {
+            // Membuat rotasi berdasarkan lookDirection
+            Quaternion targetRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
+            transform.GetChild(0).transform.rotation = targetRotation;
+        }
     }
 }

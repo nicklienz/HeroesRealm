@@ -7,10 +7,8 @@ using UnityEngine.Tilemaps;
 public class AutoGridWalk : MonoBehaviour
 {
     [SerializeField] Joystick joystick;
-    public Tilemap tilemap; // Tilemap yang akan digunakan untuk pathfinding
-    public TileBase walkableTile, protectedTile; // Tile yang dianggap sebagai jalur yang bisa dilewati
+    ManajerTiles manajerTiles;
     private TilemapCollider2D tilemapCollider;
-    private Grid grid;
     private float gridSize = 1f;
     private float moveSpeed = 2f;
     private float moveDelay = 0f;
@@ -21,20 +19,19 @@ public class AutoGridWalk : MonoBehaviour
     [SerializeField] private bool depan, belakang, kiri, kanan;
     [SerializeField] private Vector3 lookDirection = Vector3.forward;
     [SerializeField] private Vector3 targetPos, movementDirection;
-    [SerializeField] private bool isCollide;
     [SerializeField] private float rayLength;
     private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
     [SerializeField] private float rotationSpeed;
+    [SerializeField] private GameObject pathPrefab, noPathPrefab;
 
     //Rigidbody rb;
     private void Awake()
     {
-        tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
-        grid = tilemap.GetComponentInParent<Grid>();
+        manajerTiles = GameObject.Find("ManajerTiles").GetComponent<ManajerTiles>(); 
+        tilemapCollider = manajerTiles.tilemap.GetComponent<TilemapCollider2D>();
         targetPos = transform.position;
         //rb = GetComponent<Rigidbody>();
     }
-
     private void Update() 
     {
         RayCheck();
@@ -56,15 +53,22 @@ public class AutoGridWalk : MonoBehaviour
             stopAutoWalk = false;
             Vector3 clickPos = Input.mousePosition;
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(clickPos);
-            Vector3Int tilePos = tilemap.WorldToCell(worldPos);
+            Vector3Int tilePos = manajerTiles.tilemap.WorldToCell(worldPos);
+            Vector3 spawnPos = new Vector3(tilePos.x, 0.1f, tilePos.y);
             //Debug.Log(clickPos +"    " + worldPos +"    "+ tilePos);
-            if (tilemap.HasTile(tilePos) && (tilemap.GetTile(tilePos) == walkableTile || tilemap.GetTile(tilePos) == protectedTile)) 
+            if (manajerTiles.tilemap.HasTile(tilePos) && (manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.walkableTile || manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.protectedTile)) 
             {
                 // Jika tile yang ditekan adalah tile yang bisa dilewati,
                 // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
-                Vector3Int startCell = grid.WorldToCell(transform.position);
+                Vector3Int startCell = manajerTiles.grid.WorldToCell(transform.position);
                 Vector3Int endCell = tilePos;
                 StartPathfinding(startCell, endCell);
+                GameObject success = Instantiate(pathPrefab, spawnPos, Quaternion.identity);
+                Destroy(success,2f);
+            } else
+            {
+                GameObject fail = Instantiate(noPathPrefab, spawnPos, Quaternion.identity);
+                Destroy(fail,2f);
             }
         } else if(inputHorizontal != 0 || inputVertical != 0 && canControlWalk || Input.anyKeyDown)
         {
@@ -91,26 +95,35 @@ public class AutoGridWalk : MonoBehaviour
                 }
             }
         }
-        Vector3Int targetTilePos = tilemap.WorldToCell(targetPos);
-        if(Vector3.Distance(transform.position, targetPos) > 0.01f && stopAutoWalk && transform.position != targetPos && (tilemap.HasTile(targetTilePos) && tilemap.GetTile(targetTilePos) == walkableTile || tilemap.GetTile(targetTilePos) == protectedTile))
+        Vector3Int targetTilePos = manajerTiles.tilemap.WorldToCell(targetPos);
+        if(Vector3.Distance(transform.position, targetPos) > 0.01f && stopAutoWalk && transform.position != targetPos && (manajerTiles.tilemap.HasTile(targetTilePos) && manajerTiles.tilemap.GetTile(targetTilePos) == manajerTiles.walkableTile || manajerTiles.tilemap.GetTile(targetTilePos) == manajerTiles.protectedTile))
         {
             movementDirection = targetPos - transform.position;
             LookRotation();
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
-            canControlWalk = false;
-        } else if (stopAutoWalk && transform.position != targetPos && (!tilemap.HasTile(targetTilePos) || tilemap.GetTile(targetTilePos) != walkableTile || tilemap.GetTile(targetTilePos) != protectedTile))
+            if(!CheckRayCast())
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+                canControlWalk = false;
+            } else
+            {
+                RoundPosition();
+                targetPos = transform.position;                
+            }
+        } else if (stopAutoWalk && transform.position != targetPos && (!manajerTiles.tilemap.HasTile(targetTilePos) || manajerTiles.tilemap.GetTile(targetTilePos) != manajerTiles.walkableTile || manajerTiles.tilemap.GetTile(targetTilePos) != manajerTiles.protectedTile))
         {
             RoundPosition();
             targetPos = transform.position;
-        } else if (isCollide)
-        {
-            RoundPosition();
-            targetPos = transform.position;         
         }
         else if (targetPos == transform.position)
         {
             canControlWalk = true;
         }
+    }
+
+    public Vector3 Teleporting(Vector3 target)
+    {
+        targetPos = target;
+        return target;
     }
     private void RayVisual()
     {
@@ -128,28 +141,38 @@ public class AutoGridWalk : MonoBehaviour
         belakang = Physics.Raycast(transform.position + offsetRay, Vector3.back, rayLength) ? true : false;
     }
 
-    private Vector3 RayCheckVector3()
+    private Vector3 RayCheckVector3(bool sisi)
     {
         Vector3 posisi = Vector3.zero;
-        if(kanan)
+        if(sisi == kanan && kanan)
         {
             posisi = Vector3.right;
         }  
-        if (kiri)
+        if (sisi == kiri && kiri)
         {
             posisi = Vector3.left;            
         } 
-        if (depan)
+        if (sisi == depan && depan)
         {
             posisi = Vector3.forward;            
         } 
-        if (belakang)
+        if (sisi == belakang && belakang)
         {
             posisi = Vector3.back;            
         }
         return posisi;
     }
-
+    private bool CheckRayCast()
+    {
+        if(movementDirection == RayCheckVector3(kanan) ||
+        movementDirection == RayCheckVector3(kiri) ||
+        movementDirection == RayCheckVector3(depan) ||
+        movementDirection == RayCheckVector3(belakang))
+        {
+            return true;
+        }
+        return false;
+    }
     private void LookRotation()
     {
         if(Mathf.Abs(movementDirection.x)> Mathf.Abs(movementDirection.z))
@@ -230,7 +253,7 @@ public class AutoGridWalk : MonoBehaviour
             // Loop melalui tetangga-tetangga current
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                TileBase tile = tilemap.GetTile(neighbor);
+                TileBase tile = manajerTiles.tilemap.GetTile(neighbor);
                 // Jika neighbor ada dalam closed list atau tidak dapat dilalui, lewati
                 if (closedList.Contains(neighbor) || tile == null)
                 {
@@ -313,6 +336,10 @@ public class AutoGridWalk : MonoBehaviour
         if (path != null)
         {
             moveToPathCoroutine = StartCoroutine(MoveToPath(path));
+        } else 
+        {
+            ManajerNotification.Instance.messageErrorText.text = "Tidak ada jalan!";
+            ManajerNotification.Instance.ShowMessage(MessageType.Error);
         }
     }
 
@@ -323,18 +350,20 @@ public class AutoGridWalk : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             // Menghitung posisi dunia dari sel pada path
-            Vector3 targetPosition = tilemap.CellToWorld(path[i]);
+            Vector3 targetPosition = manajerTiles.tilemap.CellToWorld(path[i]);
             // Menggerakkan karakter secara smooth menuju target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f && !stopAutoWalk)
             {
                 canControlWalk = false;
                 movementDirection = targetPosition - transform.position;
                 LookRotation();
-                if(movementDirection == RayCheckVector3())
+                if(CheckRayCast())
                 {
                     break;
                 }
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                newPos.y = transform.position.y;
+                transform.position = newPos;
                 targetPos = targetPosition;
                 yield return null;
             }
@@ -345,19 +374,6 @@ public class AutoGridWalk : MonoBehaviour
 
         // Reset Coroutine menjadi null setelah selesai
         moveToPathCoroutine = null;
-    }
- 
-    private void OnCollisionEnter(Collision other) 
-    {
-        isCollide = true;
-        //rb.velocity = Vector3.zero;
-        //rb.angularVelocity = Vector3.zero;
-    }
-
-    private void OnCollisionExit(Collision other) 
-    {
-        isCollide = false;
-        //rb.isKinematic = true;
     }
 }
 

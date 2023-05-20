@@ -27,7 +27,8 @@ MonoBehaviour:
   - attackName: Default
     element: 0
     amountDamage: 2
-    damagePrefab: {fileID: 0}
+    damagePrefab: {fileID: 1858297043041879928, guid: a5ab12dfa1d360f4d8292c302b0f52c8,
+      type: 3}
     prefabDestroyTime: 1.5
   chanceRate: 0
   criticalRate: 0

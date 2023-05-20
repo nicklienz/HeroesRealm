@@ -32,7 +32,8 @@ public class EnemySO : ScriptableObject
     public int enemyDef;
     public EnemyLevel enemyLevel;
     public float enemyWalkSpeed, enemyIntervalMove;
-    public int enemyMoveRadius, enemyDetectRadius;
+    public int enemyMoveRadius;
+    public float enemyDetectRadius;
     public List<AttackType> enemyAttack;
     public GameObject particleCritical, particleMiss, particleDead, enemyDamageText;
     public Element enemyWeakness;
@@ -70,22 +71,22 @@ public class EnemySO : ScriptableObject
     public void EnemyTakeDamage(int attackDamage, int amount, GameObject particleHit, GameObject particleDamage, Vector3 position, float time)
     {
         float rate = (float)amount/ (float)attackDamage;
-        GameObject part = Instantiate(particleDamage, position + Vector3.up, Quaternion.Euler(90,0,0));
-        TextMeshPro damageText = part.GetComponent<TextMeshPro>();
+        GameObject part = Instantiate(particleDamage, position, Quaternion.Euler(90,0,0));
+        TextMeshPro damageText = part.GetComponentInChildren<TextMeshPro>();
         damageText.text = amount.ToString();
         Destroy(part,time);
         if (rate > 0 && rate < 1f)
         {
-            GameObject go = Instantiate(particleHit, position + Vector3.up, Quaternion.identity);
+            GameObject go = Instantiate(particleHit, position, Quaternion.identity);
             Destroy(go, time);
         } else if(rate >= 1f)
         {
-            GameObject go = Instantiate(particleHit, position + Vector3.up, Quaternion.identity);
+            GameObject go = Instantiate(particleHit, position, Quaternion.identity);
             Destroy(go, time);
-            GameObject go1 = Instantiate(particleCritical, position + Vector3.up, Quaternion.identity);      
+            GameObject go1 = Instantiate(particleCritical, position, Quaternion.identity);      
         } else if (rate == 0)
         {
-            GameObject go = Instantiate(particleMiss, position + Vector3.up, Quaternion.identity);
+            GameObject go = Instantiate(particleMiss, position, Quaternion.identity);
             Destroy(go, time);
         }
     }

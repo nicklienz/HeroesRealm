@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy1
   m_EditorClassIdentifier: 
   enemySprite: {fileID: 21300000, guid: 5a9f75ba1709a4b6f81c9c2416283e6f, type: 3}
-  enemyName: Test
+  enemyName: Bug
   enemyHealth: 30
   enemyMinAttackRate: 2
   enemyMaxAttackRate: 2
@@ -24,16 +24,21 @@ MonoBehaviour:
   enemyWalkSpeed: 1
   enemyIntervalMove: 5
   enemyMoveRadius: 3
-  enemyDetectRadius: 1
+  enemyDetectRadius: 2
   enemyAttack:
   - attackName: Claw
     element: 0
-    amountDamage: 2
-    damagePrefab: {fileID: 0}
-    prefabDestroyTime: 0.5
-  particleCritical: {fileID: 0}
-  particleMiss: {fileID: 0}
-  particleDead: {fileID: 0}
-  enemyDamageText: {fileID: 0}
+    amountDamage: 50
+    damagePrefab: {fileID: 1858297043041879928, guid: a5ab12dfa1d360f4d8292c302b0f52c8,
+      type: 3}
+    prefabDestroyTime: 2
+  particleCritical: {fileID: 2263043156001730456, guid: 8a128076a07de924fb72fe764ae654e9,
+    type: 3}
+  particleMiss: {fileID: 5381094072997160552, guid: a0013831b5bcffc4386b755c0e30c505,
+    type: 3}
+  particleDead: {fileID: 4192621384895013171, guid: 4cb842fb1334a9548b4f0e361e197a7a,
+    type: 3}
+  enemyDamageText: {fileID: 7941259368352850671, guid: cdde8bd1a652f814d8e846cf3cd4ea35,
+    type: 3}
   enemyWeakness: 0
   enemyImmune: 3

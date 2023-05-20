@@ -25,13 +25,12 @@ public class Character : MonoBehaviour
     [SerializeField] private GameObject panelPick;
     [SerializeField] private Button yesPick, noPick;
     [SerializeField] private bool isRegen;
-    public bool isCollide, attacking, isInTrigger;
+    public bool isCollide, isInTrigger;
     ManajerGame manajerGame;
     
     private void Start()
     {
         isCollide = false;
-        attacking = false;
         isInTrigger = false;
         HitungTotalStatusEquipment();
         CheckCharacterLevel();
@@ -81,23 +80,9 @@ public class Character : MonoBehaviour
         if(!isCollide && !isRegen)
         {
             StartCoroutine(Regen());
-        } else if (isCollide && !attacking)
+        } else if (isCollide)
         {
-            CheckCharacterDead();
             StopCoroutine(Regen());
-            if(enemyToAttack.curEnemyHealth > 0 && enemyToAttack != null)
-            {
-                StartCoroutine(AttackingEnemy(enemyToAttack));
-            } else if (enemyToAttack.curEnemyHealth <= 0 && enemyToAttack != null)
-            {
-                StopCoroutine(AttackingEnemy(enemyToAttack));
-                enemyToAttack.EnemyDead(this);
-                characterSO.experiencePoints += Mathf.RoundToInt(enemyToAttack.enemySO.enemyExp + (enemyToAttack.enemySO.enemyExp * characterSO.expRate));
-                CheckCharacterLevel();
-                RemoveEnemy(this.transform); 
-                ManajerEnemy.Instance.RemoveEnemy();
-                isCollide = false;            
-            }
         }
     }
 
@@ -149,43 +134,42 @@ public class Character : MonoBehaviour
     private void OnCollisionEnter(Collision other) 
     {
         isCollide = true;
+        CollideEnemy();
         if(other.gameObject.tag == "Tree")
         {
             ManajerNotification.Instance.messageErrorText.text = other.gameObject.name;
             StartCoroutine(ManajerNotification.instance.ShowMessage(MessageType.Error));
         }    
-        if(other.gameObject.tag == "Enemy")
-        {
-            ShowEnemyStat();
-            AddEnemy(other.transform);
-            enemyToAttack = other.gameObject.GetComponent<Enemy>();
-        }    
     }
     private void OnCollisionExit(Collision other) 
     {
+        CollideEnemy();              
         isCollide = false;
-        if(other.gameObject.tag == "Enemy")
-        {
-            Enemy enemy = other.gameObject.GetComponent<Enemy>();
-            attacking = false;
-            RemoveEnemy(other.transform);
-            enemyToAttack = null;
-            HideEnemyStat();
-        }                
     }
 
-    private IEnumerator AttackingEnemy(Enemy enemy)
+    public IEnumerator AttackingEnemy(Enemy enemy)
     {
-        attacking = true;
-        yield return new WaitForSeconds(intervalAttack);
-        if(isCollide)
+        while (enemy.curEnemyHealth > 0 && enemyToAttack != null)
         {
+            ShowEnemyStat();
             AttackType playerAttack = characterSO.RandomPlayerAttack(Equipment.Instance.weaponEquipped, enemy.enemySO.enemyWeakness, enemy.enemySO.enemyImmune);
             int damage = enemy.enemySO.CalculateDamageToEnemy(playerAttack.amountDamage + characterSO.curStr,playerAttack.element,Equipment.Instance.weaponEquipped.levelUnlock, characterSO.level, characterSO.criticalRate, characterSO.chanceRate);
+            CheckCharacterLevel();
+            CheckCharacterDead();
             enemy.curEnemyHealth -= damage;
             enemy.enemySO.EnemyTakeDamage(playerAttack.amountDamage, damage, playerAttack.damagePrefab, characterSO.playerDamageText, enemy.transform.position, playerAttack.prefabDestroyTime);
+            yield return new WaitForSeconds(intervalAttack);
         }
-        attacking = false;
+        if (enemy.curEnemyHealth <= 0)
+        {
+            HideEnemyStat();
+            enemy.EnemyDead(this);
+            characterSO.experiencePoints += Mathf.RoundToInt(enemy.enemySO.enemyExp + (enemy.enemySO.enemyExp * characterSO.expRate));
+            RemoveEnemy(this.transform); 
+            ManajerEnemy.Instance.RemoveEnemy();          
+        }
+        CheckCharacterLevel();
+        CheckCharacterDead();
     }
 
     private void CheckCharacterDead()
@@ -246,8 +230,23 @@ public class Character : MonoBehaviour
     }
     private void OnTriggerExit(Collider other) 
     {
-
         isInTrigger = false;
         CancelPick();
+    }
+    private void CollideEnemy()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("Enemy"))
+            {
+                enemyToAttack = collider.gameObject.GetComponent<Enemy>();
+                Debug.Log(enemyToAttack.gameObject.name);
+                break;
+            } else
+            {
+                enemyToAttack = null;
+            }
+        }
     }
 }

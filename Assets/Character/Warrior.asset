@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   job: 0
   userName: Nicklang
-  gold: 0
-  level: 13
+  gold: 19999200
+  level: 274
   startHealth: 140
-  maxHealth: 270
-  currentHealth: 270
+  maxHealth: 2880
+  currentHealth: 2880
   healthMultiplier: 10
   startMana: 30
-  maxManaPoints: 69
-  currentManaPoints: 69
+  maxManaPoints: 852
+  currentManaPoints: 852
   manaMultiplier: 3
-  experiencePoints: 200
+  experiencePoints: 13000
   startStr: 10
   startDef: 5
   startMagic: 2
@@ -48,9 +48,12 @@ MonoBehaviour:
   iceDef: 0
   soulDef: 0
   thunderDef: 0
-  particleCritical: {fileID: 0}
-  particleMiss: {fileID: 0}
-  playerDamageText: {fileID: 0}
+  particleCritical: {fileID: 2263043156001730456, guid: 8a128076a07de924fb72fe764ae654e9,
+    type: 3}
+  particleMiss: {fileID: 5381094072997160552, guid: a0013831b5bcffc4386b755c0e30c505,
+    type: 3}
+  playerDamageText: {fileID: 1379972122502709475, guid: 36073594ced8f964ab385b03355a72a2,
+    type: 3}
   regenDelay: 6
   regenRate: 0.05
   position: {x: 0, y: 0, z: 0}

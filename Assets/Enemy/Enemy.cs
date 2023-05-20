@@ -17,18 +17,13 @@ public class Enemy : MonoBehaviour
     public EnemyState enemyState;
     public EnemySO enemySO;
     [SerializeField] float intervalAttack;
-    [SerializeField] bool isCollide;
-    [SerializeField] bool attacking;
-    Character character;
     public int curEnemyHealth;
     public Color color;
     public string enemyId;
     public Vector3Int startPos, destPos, prevDest;
-    BoxCollider boxCollider;
+    public Transform playerCollided, playerDetected;
     private void Start() 
     {
-        boxCollider = gameObject.GetComponent<BoxCollider>();
-        boxCollider.size = new Vector3(enemySO.enemyDetectRadius, 1f, enemySO.enemyDetectRadius);
         enemyId = enemySO.enemyName+ GetInstanceID();
         gameObject.name = enemyId;
         curEnemyHealth = enemySO.enemyHealth;
@@ -45,66 +40,16 @@ public class Enemy : MonoBehaviour
         enemyState = EnemyState.patroli;
     }
 
-    private void OnCollisionEnter(Collision other) 
+    public IEnumerator AttackingPlayer(Character character)
     {
-        if(other.gameObject.tag == "Player")
-        {
-            character = other.gameObject.GetComponent<Character>();
-            isCollide = true;
-            enemyState = EnemyState.attack;
-        }    
-    }
-
-    private void OnCollisionExit(Collision other) 
-    {
-        if(other.gameObject.tag == "Player")
-        {
-            isCollide = false;
-            attacking = false;
-        }            
-    }
-    private void OnTriggerEnter(Collider other) 
-    {
-        //Debug.Log("enter");
-        if(other.gameObject.tag == "Player")
-        {
-            enemyState = EnemyState.kejar;
-            Vector3 playerPos = other.gameObject.transform.position;
-            Debug.Log(this.gameObject.name +" enter player");
-        }            
-    }
-
-    private void OnTriggerExit(Collider other) 
-    {
-        //Debug.Log("exit");
-        if(other.gameObject.tag == "Player")
-        {
-            enemyState = EnemyState.patroli;
-            Debug.Log(this.gameObject.name +" exit player");
-        }            
-    }    
-    private void FixedUpdate()
-    {
-        if(isCollide && !attacking)
-        {
-            StartCoroutine(AttackingPlayer());
-        } else if (!isCollide)
-        {
-            StopCoroutine(AttackingPlayer());
-        }
-    }
-
-    private IEnumerator AttackingPlayer()
-    {
-        attacking = true;
-        yield return new WaitForSeconds(intervalAttack);
-        if(isCollide)
+        while(playerCollided != null)
         {
             AttackType enemyAttack = enemySO.RandomEnemyAttack();
             int damage = character.characterSO.CalculateDamageToPlayer(enemyAttack.amountDamage, enemyAttack.element, enemySO.enemyMinAttackRate, enemySO.enemyMaxAttackRate);
             character.characterSO.PlayerTakeDamage(damage, enemyAttack.damagePrefab, enemySO.enemyDamageText, character.transform.position, enemyAttack.prefabDestroyTime);
+            StartCoroutine(character.AttackingEnemy(this));
+            yield return new WaitForSeconds(intervalAttack);
         }
-        attacking = false;
     }
 
     public void EnemyDead(Character character)
