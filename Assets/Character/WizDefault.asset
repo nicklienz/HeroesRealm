@@ -10,35 +10,35 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ce5bb4dfad91bf4295b7d0235df0aba, type: 3}
-  m_Name: Warrior
+  m_Name: WizDefault
   m_EditorClassIdentifier: 
-  job: 0
-  userName: Nicklang
-  gold: 19995505
-  level: 44
-  startHealth: 140
-  maxHealth: 580
-  currentHealth: 580
-  healthMultiplier: 10
-  startMana: 30
-  maxManaPoints: 162
-  currentManaPoints: 162
-  manaMultiplier: 3
-  experiencePoints: 1000
-  startStr: 10
-  startDef: 5
-  startMagic: 2
-  curStr: 142
-  curDef: 93
-  curMagic: 46
-  strMultiplier: 3
-  defMultiplier: 2
-  magicMultiplier: 1
+  job: 1
+  userName: 
+  gold: 200
+  level: 1
+  startHealth: 80
+  maxHealth: 80
+  currentHealth: 80
+  healthMultiplier: 4
+  startMana: 50
+  maxManaPoints: 50
+  currentManaPoints: 50
+  manaMultiplier: 7
+  experiencePoints: 11
+  startStr: 2
+  startDef: 3
+  startMagic: 5
+  curStr: 0
+  curDef: 0
+  curMagic: 0
+  strMultiplier: 1
+  defMultiplier: 1
+  magicMultiplier: 2
   criticalRate: 0
   chanceRate: 0
   goldRate: 0
   expRate: 0
-  hitAtk: 2
+  hitAtk: 0
   fireAtk: 0
   iceAtk: 0
   soulAtk: 0
@@ -55,7 +55,5 @@ MonoBehaviour:
   playerDamageText: {fileID: 1379972122502709475, guid: 36073594ced8f964ab385b03355a72a2,
     type: 3}
   regenDelay: 6
-  regenRate: 0.05
+  regenRate: 0.06
   position: {x: 0, y: 0, z: 0}
-  skillPointUsed: 20
-  skillPointLeft: 24

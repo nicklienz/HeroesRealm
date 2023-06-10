@@ -10,18 +10,13 @@ public class Shop : MonoBehaviour
 {
     [SerializeField]string shopName;
     public List<ItemSO> sellItem;
-    Character character;
     [SerializeField] Transform slotParent;
     [SerializeField] GameObject panelShop;
     [SerializeField] GameObject slotItem;
-    [SerializeField] TextMeshProUGUI titleText;
-    [SerializeField] Button exitShop;
+    private TextMeshProUGUI title;
+    private Button exitShop;
 
-    private void Start()
-    {
-        character = GameObject.Find("Pemain").GetComponent<Character>();
-    }
-    public void BuyItem(ItemSO itemSO)
+    public void BuyItem(ItemSO itemSO, Character character)
     {
         if(sellItem.Contains(itemSO))
         {
@@ -31,6 +26,8 @@ public class Shop : MonoBehaviour
                 ManajerInventory.Instance.inventory.AddItem(itemSO);
                 ManajerInventory.Instance.DisplayInventory();
                 character.CheckCharacterLevel();
+                ManajerNotification.Instance.messageSuccessText.text = "Berhasil membeli " + itemSO.itemName;
+                StartCoroutine(ManajerNotification.Instance.ShowMessage(MessageType.Success));
             } else if(character.characterSO.gold < itemSO.hargaJual || !ManajerInventory.Instance.inventory.SlotKosong())
             {
                 ManajerNotification.Instance.messageErrorText.text = "Uang anda tidak cukup atau inventory penuh";
@@ -42,14 +39,18 @@ public class Shop : MonoBehaviour
     {
          if(other.gameObject.tag == "Player")
          {
-            DisplayShop();
-            panelShop.gameObject.SetActive(true);
+            Character character = other.gameObject.GetComponent<Character>();
+            DisplayShop(character);
          }
     }
-    private void DisplayShop()
+    private void DisplayShop(Character character)
     {
+        panelShop.gameObject.SetActive(true);
+        exitShop = panelShop.transform.Find("TopBar").transform.Find("Button_Back").GetComponent<Button>();
         exitShop.onClick.RemoveAllListeners();
         exitShop.onClick.AddListener(()=> ExitShop());
+        title = panelShop.transform.Find("Title").GetComponent<TextMeshProUGUI>();
+        title.text = shopName;
         if(slotParent.childCount > 0)
         {
             foreach (Transform child in slotParent)
@@ -64,7 +65,6 @@ public class Shop : MonoBehaviour
             slot.gameObject.name = sellItem[i].itemName;
             slot.transform.SetParent(slotParent);
             slot.transform.localScale = new Vector3(1f,1f,1f);
-            titleText.text = shopName;
             Image icon = slot.transform.Find("Icon").GetComponent<Image>();
             Button buyButton = slot.transform.Find("Button_Price").GetComponent<Button>();
             TextMeshProUGUI textNamaItem = slot.transform.Find("Nama_Item").GetComponentInChildren<TextMeshProUGUI>();   
@@ -74,7 +74,7 @@ public class Shop : MonoBehaviour
             textNamaItem.text = sellItem[i].itemName;
             int index = i; // Simpan nilai i dalam variabel index untuk menghindari closure bugs
             buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(() => BuyItem(sellItem[index]));
+            buyButton.onClick.AddListener(() => BuyItem(sellItem[index], character));
 
             // Tambahkan event trigger PointerEnter dan panggil fungsi ShowPopup saat event terjadi
             EventTrigger eventTrigger = slot.GetComponent<EventTrigger>();
@@ -164,6 +164,13 @@ public class Shop : MonoBehaviour
 
     private void ExitShop()
     {
+        if(slotParent.childCount > 0)
+        {
+            foreach (Transform child in slotParent)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
         panelShop.gameObject.SetActive(false);
     }
 }

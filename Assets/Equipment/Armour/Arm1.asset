@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0a50098e84199468371d84bb17bc64, type: 3}
+  m_Name: Arm1
+  m_EditorClassIdentifier: 
+  itemType: 5
+  consume: 1
+  itemName: Arm 1
+  itemDesc: Default
+  prefab: {fileID: 5278901692545215403, guid: 6effcdbbcfe0cb645a90651029dc496c, type: 3}
+  itemIcon: {fileID: 21300000, guid: 0ebe2661e559c4c16b94c9427e872512, type: 3}
+  hargaBeli: 9850
+  hargaJual: 100
+  levelUnlock: 6
+  job: 0
+  hitDefRate: 0
+  fireDefRate: 0
+  iceDefRate: 0
+  soulDefRate: 0.2
+  thunderDefRate: 0.1
+  chanceRate: 0.004
+  criticalRate: 0.002
+  goldRate: 0.003
+  expRate: 0.0005

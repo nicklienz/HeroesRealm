@@ -147,7 +147,6 @@ MonoBehaviour:
   enemyState: 0
   enemySO: {fileID: 11400000, guid: b728c3e749d0482469c05bba111d953b, type: 2}
   intervalAttack: 3
-  attacking: 0
   curEnemyHealth: 0
   color: {r: 0, g: 0, b: 0, a: 0}
   enemyId: 
@@ -168,9 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2aa0a6f2cbb2c544a0045d94140babc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemap: {fileID: 0}
-  walkableTile: {fileID: 11400000, guid: 7dce8be328329fb42bd3eb3180935c01, type: 2}
-  protectedTile: {fileID: 11400000, guid: 9f5a31c67651bbd4882f9eecf318a25c, type: 2}
   pathList: []
   moveDelay: 0.2
   spawnPos: {x: 0, y: 0, z: 0}
@@ -180,7 +176,9 @@ MonoBehaviour:
   patrol: 0
   moving: 0
   kejar: 0
+  attacking: 0
   rayLength: 0
+  sphereRadius: 0.6
   lookDirection: {x: 0, y: 0, z: 0}
   movementDirection: {x: 0, y: 0, z: 0}
 --- !u!54 &2293985011305086133

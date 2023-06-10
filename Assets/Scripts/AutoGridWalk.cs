@@ -30,7 +30,6 @@ public class AutoGridWalk : MonoBehaviour
         manajerTiles = GameObject.Find("ManajerTiles").GetComponent<ManajerTiles>(); 
         tilemapCollider = manajerTiles.tilemap.GetComponent<TilemapCollider2D>();
         targetPos = transform.position;
-        //rb = GetComponent<Rigidbody>();
     }
     private void Update() 
     {
@@ -47,7 +46,6 @@ public class AutoGridWalk : MonoBehaviour
             inputHorizontal = 0;
             inputVertical = Mathf.Sign(inputVertical);
         }
-
         if(Input.GetMouseButtonDown(0) && canControlWalk && !EventSystem.current.IsPointerOverGameObject())
         {
             stopAutoWalk = false;
@@ -55,8 +53,7 @@ public class AutoGridWalk : MonoBehaviour
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(clickPos);
             Vector3Int tilePos = manajerTiles.tilemap.WorldToCell(worldPos);
             Vector3 spawnPos = new Vector3(tilePos.x, 0.1f, tilePos.y);
-            //Debug.Log(clickPos +"    " + worldPos +"    "+ tilePos);
-            if (manajerTiles.tilemap.HasTile(tilePos) && (manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.walkableTile || manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.protectedTile)) 
+            if ( !EventSystem.current.IsPointerOverGameObject() && manajerTiles.tilemap.HasTile(tilePos) && (manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.walkableTile || manajerTiles.tilemap.GetTile(tilePos) == manajerTiles.protectedTile)) 
             {
                 // Jika tile yang ditekan adalah tile yang bisa dilewati,
                 // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
@@ -118,6 +115,7 @@ public class AutoGridWalk : MonoBehaviour
         {
             canControlWalk = true;
         }
+        LookRotation();
     }
 
     public Vector3 Teleporting(Vector3 target)
@@ -336,10 +334,12 @@ public class AutoGridWalk : MonoBehaviour
         if (path != null)
         {
             moveToPathCoroutine = StartCoroutine(MoveToPath(path));
+            ManajerNotification.Instance.messageErrorText.text = "Menuju " + path;
+            StartCoroutine(ManajerNotification.Instance.ShowMessage());
         } else 
         {
             ManajerNotification.Instance.messageErrorText.text = "Tidak ada jalan!";
-            ManajerNotification.Instance.ShowMessage(MessageType.Error);
+            StartCoroutine(ManajerNotification.Instance.ShowMessage(MessageType.Error));
         }
     }
 
@@ -359,6 +359,8 @@ public class AutoGridWalk : MonoBehaviour
                 LookRotation();
                 if(CheckRayCast())
                 {
+                    targetPos = transform.position;
+                    RoundPosition();
                     break;
                 }
                 Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);

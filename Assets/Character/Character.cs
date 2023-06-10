@@ -18,7 +18,7 @@ public class Character : MonoBehaviour
     [SerializeField] private TextMeshProUGUI expText;
     [SerializeField] private List<Transform> enemyCollide;
     [SerializeField] private float intervalAttack;
-    [SerializeField] private Enemy enemyToAttack;
+    public Enemy enemyToAttack;
     [SerializeField] private Slider enemyHealthSlider;
     [SerializeField] private TextMeshProUGUI enemyName;
     [SerializeField] private Image enemyIcon, enemyLevel;
@@ -45,6 +45,15 @@ public class Character : MonoBehaviour
         if(levelNew != characterSO.level)
         {
             characterSO.RestoreHealthMana();
+            if (characterSO.skillPointLeft + characterSO.skillPointUsed <= levelNew)
+            {
+                characterSO.skillPointLeft = levelNew - characterSO.skillPointUsed;
+            } else
+            {
+                ManajerSkill.Instance.ResetSkill();
+                characterSO.skillPointLeft = levelNew;
+                characterSO.skillPointUsed = 0;
+            }
         }
         characterSO.level = levelNew;
         float beforeExp = ManajerLevel.Instance.GetExpForLevel(characterSO.level);
@@ -116,13 +125,13 @@ public class Character : MonoBehaviour
         enemyName.text = enemyToAttack.enemySO.enemyName;
         enemyHealthSlider.value = (float)enemyToAttack.curEnemyHealth/ (float)enemyToAttack.enemySO.enemyHealth;
     }
-    private void HideEnemyStat()
+    private IEnumerator HideEnemyStat()
     {
+        yield return new WaitForSeconds(1.5f);
         enemyHealthSlider.gameObject.SetActive(false);
         enemyName.gameObject.SetActive(false);
         enemyIcon.gameObject.SetActive(false);
         enemyLevel.gameObject.SetActive(false);
-
     }
     public void RemoveEnemy(Transform enemy)
     {
@@ -149,8 +158,10 @@ public class Character : MonoBehaviour
 
     public IEnumerator AttackingEnemy(Enemy enemy)
     {
-        while (enemy.curEnemyHealth > 0 && enemyToAttack != null)
+        if (enemy.curEnemyHealth > 0 && enemyToAttack != null)
         {
+            yield return new WaitForSeconds(intervalAttack);
+            Debug.Log("jalan dalam2");
             ShowEnemyStat();
             AttackType playerAttack = characterSO.RandomPlayerAttack(Equipment.Instance.weaponEquipped, enemy.enemySO.enemyWeakness, enemy.enemySO.enemyImmune);
             int damage = enemy.enemySO.CalculateDamageToEnemy(playerAttack.amountDamage + characterSO.curStr,playerAttack.element,Equipment.Instance.weaponEquipped.levelUnlock, characterSO.level, characterSO.criticalRate, characterSO.chanceRate);
@@ -158,15 +169,18 @@ public class Character : MonoBehaviour
             CheckCharacterDead();
             enemy.curEnemyHealth -= damage;
             enemy.enemySO.EnemyTakeDamage(playerAttack.amountDamage, damage, playerAttack.damagePrefab, characterSO.playerDamageText, enemy.transform.position, playerAttack.prefabDestroyTime);
-            yield return new WaitForSeconds(intervalAttack);
+            ShowEnemyStat();
         }
-        if (enemy.curEnemyHealth <= 0)
+        else if (enemy.curEnemyHealth <= 0)
         {
-            HideEnemyStat();
             enemy.EnemyDead(this);
             characterSO.experiencePoints += Mathf.RoundToInt(enemy.enemySO.enemyExp + (enemy.enemySO.enemyExp * characterSO.expRate));
             RemoveEnemy(this.transform); 
-            ManajerEnemy.Instance.RemoveEnemy();          
+            ManajerEnemy.Instance.RemoveEnemy();  
+            StartCoroutine(HideEnemyStat());        
+        } else if(enemyToAttack == null)
+        {
+            yield break;
         }
         CheckCharacterLevel();
         CheckCharacterDead();
@@ -235,17 +249,21 @@ public class Character : MonoBehaviour
     }
     private void CollideEnemy()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.6f);
         foreach (Collider collider in colliders)
         {
             if (collider.CompareTag("Enemy"))
             {
-                enemyToAttack = collider.gameObject.GetComponent<Enemy>();
-                Debug.Log(enemyToAttack.gameObject.name);
+                if(enemyToAttack == null)
+                {
+                    isCollide = true;
+                    enemyToAttack = collider.gameObject.GetComponent<Enemy>();
+                }
                 break;
             } else
             {
                 enemyToAttack = null;
+                isCollide = false;
             }
         }
     }

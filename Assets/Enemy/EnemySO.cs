@@ -71,7 +71,7 @@ public class EnemySO : ScriptableObject
     public void EnemyTakeDamage(int attackDamage, int amount, GameObject particleHit, GameObject particleDamage, Vector3 position, float time)
     {
         float rate = (float)amount/ (float)attackDamage;
-        GameObject part = Instantiate(particleDamage, position, Quaternion.Euler(90,0,0));
+        GameObject part = Instantiate(particleDamage, position, Quaternion.identity);
         TextMeshPro damageText = part.GetComponentInChildren<TextMeshPro>();
         damageText.text = amount.ToString();
         Destroy(part,time);
@@ -83,7 +83,8 @@ public class EnemySO : ScriptableObject
         {
             GameObject go = Instantiate(particleHit, position, Quaternion.identity);
             Destroy(go, time);
-            GameObject go1 = Instantiate(particleCritical, position, Quaternion.identity);      
+            GameObject go1 = Instantiate(particleCritical, position, Quaternion.identity);   
+            Destroy(go1, time);
         } else if (rate == 0)
         {
             GameObject go = Instantiate(particleMiss, position, Quaternion.identity);

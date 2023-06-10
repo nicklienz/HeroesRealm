@@ -103,7 +103,7 @@ public class ManajerInventory : MonoBehaviour
         {
             inventory.RemoveItem(index);
             Debug.Log("berhasil");
-            GameObject go = Instantiate(itemSO.prefab, character.transform.position + Vector3.down, Quaternion.identity);
+            GameObject go = Instantiate(itemSO.prefab, character.transform.position + new Vector3(0.5f,0,0.5f), Quaternion.identity);
             go.name = itemSO.name;
             go.transform.GetChild(0).tag = itemSO.itemType.ToString();
             DisplayInventory();

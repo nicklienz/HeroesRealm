@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 269c294eedaefec4ab69a69983ca92a6, type: 3}
+  m_Name: FireSword
+  m_EditorClassIdentifier: 
+  itemType: 0
+  consume: 1
+  itemName: Fire Sword
+  itemDesc: Default
+  prefab: {fileID: 6634966716489115371, guid: 620215a1f1ac8b343b605d1f1e4683dd, type: 3}
+  itemIcon: {fileID: 21300000, guid: 0a2d0bb669833401daab037dc03e1e83, type: 3}
+  hargaBeli: 100
+  hargaJual: 10
+  levelUnlock: 5
+  job: 0
+  manaCost: 0
+  elementAttack:
+  - attackName: Default
+    element: 0
+    amountDamage: 5
+    damagePrefab: {fileID: 1858297043041879928, guid: a5ab12dfa1d360f4d8292c302b0f52c8,
+      type: 3}
+    prefabDestroyTime: 1.5
+  - attackName: Default
+    element: 1
+    amountDamage: 12
+    damagePrefab: {fileID: 812490704303174587, guid: 949a18995ede9494e86cd4624b6a088c,
+      type: 3}
+    prefabDestroyTime: 1.5
+  chanceRate: 0.02
+  criticalRate: 0.03
+  goldRate: 0.05
+  expRate: 0.01

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0a50098e84199468371d84bb17bc64, type: 3}
+  m_Name: Shield1 1
+  m_EditorClassIdentifier: 
+  itemType: 4
+  consume: 1
+  itemName: Shield
+  itemDesc: Default
+  prefab: {fileID: 5278901692545215403, guid: 6effcdbbcfe0cb645a90651029dc496c, type: 3}
+  itemIcon: {fileID: 21300000, guid: f16f6ec8713a645029eeb8e30469ca92, type: 3}
+  hargaBeli: 5000
+  hargaJual: 500
+  levelUnlock: 5
+  job: 0
+  hitDefRate: 0.03
+  fireDefRate: 0
+  iceDefRate: 0.02
+  soulDefRate: 0
+  thunderDefRate: 0.04
+  chanceRate: 0.005
+  criticalRate: 0.001
+  goldRate: 0.002
+  expRate: 0.0003

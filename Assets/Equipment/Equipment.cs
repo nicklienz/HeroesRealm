@@ -70,6 +70,8 @@ public class Equipment : MonoBehaviour
         slotBody.sprite = bodyEquipped != null ? bodyEquipped.itemIcon : nullBody;
         slotLegs.sprite = legsEquipped != null ? legsEquipped.itemIcon : nullLegs;
         slotRing.sprite = ringEquipped != null ? ringEquipped.itemIcon : nullRing;
+        Character character = GameObject.Find("Pemain").GetComponent<Character>();
+        character.HitungTotalStatusEquipment();
     }
     public void ChangeWeapon(WeaponSO newWeapon, Inventory inventory, int slotId)
     {
@@ -80,8 +82,6 @@ public class Equipment : MonoBehaviour
         }
         weaponEquipped = newWeapon;           
         DisplayEquipment();
-        Character character = GameObject.Find("Player").GetComponent<Character>();
-        character.HitungTotalStatusEquipment();
     }
 
     public void ChangeArmourRibet(ArmourSO armour, Inventory inventory, int slotId)
@@ -175,7 +175,7 @@ public class Equipment : MonoBehaviour
         {
             inventory.AddItemSlotId(oldArmour, inventory.tas[slotId - 1].slotId);
         }
-        DisplayEquipment();
+        DisplayEquipment();       
     }
     public void RemoveWeapon()
     {

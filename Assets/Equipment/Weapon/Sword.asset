@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 269c294eedaefec4ab69a69983ca92a6, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: 
+  itemType: 0
+  consume: 1
+  itemName: Sword
+  itemDesc: Default
+  prefab: {fileID: 6634966716489115371, guid: 620215a1f1ac8b343b605d1f1e4683dd, type: 3}
+  itemIcon: {fileID: 21300000, guid: 69bb5c3ad6c164d4eb3ce2646e22eca6, type: 3}
+  hargaBeli: 50
+  hargaJual: 10
+  levelUnlock: 3
+  job: 0
+  manaCost: 0
+  elementAttack:
+  - attackName: Default
+    element: 0
+    amountDamage: 8
+    damagePrefab: {fileID: 2100209813904181873, guid: bc3be241cfddc664e8c8333772de107b,
+      type: 3}
+    prefabDestroyTime: 1.5
+  chanceRate: 0.02
+  criticalRate: 0.03
+  goldRate: 0.05
+  expRate: 0.01

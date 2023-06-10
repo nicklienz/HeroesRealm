@@ -44,11 +44,12 @@ public class Enemy : MonoBehaviour
     {
         while(playerCollided != null)
         {
+            yield return new WaitForSeconds(intervalAttack);
             AttackType enemyAttack = enemySO.RandomEnemyAttack();
             int damage = character.characterSO.CalculateDamageToPlayer(enemyAttack.amountDamage, enemyAttack.element, enemySO.enemyMinAttackRate, enemySO.enemyMaxAttackRate);
             character.characterSO.PlayerTakeDamage(damage, enemyAttack.damagePrefab, enemySO.enemyDamageText, character.transform.position, enemyAttack.prefabDestroyTime);
+            character.enemyToAttack = this;
             StartCoroutine(character.AttackingEnemy(this));
-            yield return new WaitForSeconds(intervalAttack);
         }
     }
 

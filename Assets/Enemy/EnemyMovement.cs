@@ -13,9 +13,10 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] float moveDelay;
     [SerializeField] Vector3Int spawnPos, randomDest ,minRange, maxRange;
     [SerializeField] bool patrol, moving, kejar, attacking;
-    [SerializeField] private float rayLength;
+    [SerializeField] private float rayLength, sphereRadius;
     private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
     [SerializeField] private Vector3 lookDirection, movementDirection;
+    private float gridSize = 1f;
 
     private void Awake()
     {
@@ -78,7 +79,7 @@ public class EnemyMovement : MonoBehaviour
     }
     private void CollidePlayer()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position + offsetRay, 0.5f);
+        Collider[] colliders = Physics.OverlapSphere(transform.position + offsetRay, sphereRadius);
         bool playerCollided = false;
         foreach (Collider collider in colliders)
         {
@@ -104,7 +105,7 @@ public class EnemyMovement : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position + offsetRay, enemy.enemySO.enemyDetectRadius);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + offsetRay, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + offsetRay, sphereRadius);
     }
     private IEnumerator EnemyAIMove()
     {
@@ -348,5 +349,13 @@ public class EnemyMovement : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
             transform.GetChild(0).transform.rotation = targetRotation;
         }
+    }
+    private void RoundPosition()
+    {
+        Vector3 newPosition = transform.position;
+        newPosition.x = Mathf.Round(newPosition.x / gridSize) * gridSize;
+        newPosition.y = Mathf.Round(newPosition.y / gridSize) * gridSize;
+        newPosition.z = Mathf.Round(newPosition.z / gridSize) * gridSize;
+        transform.position = newPosition;
     }
 }

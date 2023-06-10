@@ -43,6 +43,8 @@ public class CharacterSO : ScriptableObject
     public float regenDelay;
     public float regenRate;
     public Vector3 position;
+    public int skillPointUsed;
+    public int skillPointLeft;
     // Metode untuk menghitung total damage yang akan diterima oleh karakter
     public int CalculateDamageToPlayer(float amount, Element element, float randMin, float randMax)
     {
