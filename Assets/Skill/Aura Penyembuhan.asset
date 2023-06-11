@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec95a104730dc4648863909f2d6b4a6a, type: 3}
+  m_Name: Aura Penyembuhan
+  m_EditorClassIdentifier: 
+  job: 0
+  skillStatus: 2
+  skillEffectType: 0
+  skillActivationType: 0
+  skillName: Aura Penyembuhan
+  skillDesc: Tingkat penyembuhan semakin tinggi
+  skillSprite: {fileID: 21300000, guid: 36ffa3715e1e94cd29a94f09f6532e05, type: 3}
+  coolDownTime: 25
+  activeTime: 60
+  coolDownRemaining: 25
+  activeRemaining: 60
+  unlocked: 0
+  unlockLevel: 15
+  skillLevel: 0
+  levelMultiplier: 0.02
+  countDownMultiplier: 0
+  requiredSkillToUnlock:
+  - {fileID: 11400000, guid: b07d44ba333872140828f23ffb3ab7dc, type: 2}
+  str: 0
+  def: 0
+  magic: 0
+  criticalRate: 0
+  chanceRate: 0
+  attackRange: 0
+  regenDelay: 0
+  regenRate: 0.02
+  goldRate: 0
+  expRate: 0

@@ -8,10 +8,24 @@ public enum SkillStatus
     coolDown,
     inactive
 }
+
+public enum SKillEffectType
+{
+    pemain,
+    musuh
+}
+
+public enum SkillActivationType
+{
+    waktu
+}
+
 public class SkillSO : ScriptableObject
 {
     public Job job;
     public SkillStatus skillStatus;
+    public SKillEffectType skillEffectType;
+    public SkillActivationType skillActivationType;
     public string skillName;
     public string skillDesc;
     public Sprite skillSprite;
@@ -23,7 +37,8 @@ public class SkillSO : ScriptableObject
     public int unlockLevel;
     public int skillLevel = 0;
     const  int maxSkillLevel = 5;
-    public int levelMultiplier;
+    public float levelMultiplier;
+    public float countDownMultiplier;
     public List<SkillSO> requiredSkillToUnlock;
 
     public void UnlockSkill(Character character)
@@ -51,10 +66,22 @@ public class SkillSO : ScriptableObject
     {
         
     }
+    
+    public virtual void ApplySkillEffect(Enemy enemyToAttack)
+    {
+
+    }
+
     public virtual void RemoveSkillEffect(Character character)
     {
         
     }
+
+    public virtual void RemoveSkillEffect(Enemy enemyToAttack)
+    {
+        
+    }
+    
     public void UpgradeSkill (Character character)
     {
         if(unlocked && skillLevel < maxSkillLevel && character.characterSO.skillPointLeft > 0)
@@ -69,11 +96,19 @@ public class SkillSO : ScriptableObject
         if(skillStatus == SkillStatus.ready)
         {
             skillStatus = SkillStatus.active;
-            ApplySkillEffect(character); 
+            if(skillEffectType == SKillEffectType.pemain && skillActivationType == SkillActivationType.waktu)
+            {
+                ApplySkillEffect(character); 
+                yield return new WaitForSeconds(activeTime);
+                RemoveSkillEffect(character);
+            } else if (skillEffectType == SKillEffectType.musuh && skillActivationType == SkillActivationType.waktu)
+            {
+                ApplySkillEffect(character.enemyToAttack);
+                    yield return new WaitForSeconds(activeTime);
+                RemoveSkillEffect(character.enemyToAttack);
+            }
             //Debug.Log(character.characterSO.curStr);
-            yield return new WaitForSeconds(activeTime);
             //Debug.Log(character.characterSO.curStr);
-            RemoveSkillEffect(character);
         }
     }
     public void RefreshSkillTime()

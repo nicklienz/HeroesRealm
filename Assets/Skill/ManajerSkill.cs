@@ -24,8 +24,8 @@ public class ManajerSkill : MonoBehaviour
     [SerializeField] private SkillSO skillDefenseSelected;
     [SerializeField] private Image skillAttackSelectedIcon;
     [SerializeField] private Image skillDefSelectedIcon;
-    [SerializeField] private Slider skillAttackSlider;
-    [SerializeField] private Slider skillDefSlider;
+    [SerializeField] private Image skillAttackSlider;
+    [SerializeField] private Image skillDefSlider;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button defenseButton;
     [SerializeField] private TextMeshProUGUI skillPoints;
@@ -35,6 +35,8 @@ public class ManajerSkill : MonoBehaviour
     [SerializeField] private GameObject skillTemplate;
     [SerializeField] private Transform slotAttackParent;
     [SerializeField] private GameObject slotSkill;
+    public CharacterSO tempCharSOAttack;
+    public CharacterSO tempCharSODefense;
 
     private void Start() 
     {
@@ -45,7 +47,22 @@ public class ManajerSkill : MonoBehaviour
     {
         if(skillAttackSelected != null)
         {
-            skillAttackSelected.RefreshSkillTime();        
+            skillAttackSelected.RefreshSkillTime();     
+            if(skillAttackSelected.skillStatus == SkillStatus.coolDown)
+            {
+                skillAttackSlider.color = Color.gray;
+                skillAttackSelectedIcon.color = Color.gray;                
+                skillAttackSlider.fillAmount = 1 - (skillAttackSelected.coolDownRemaining/skillAttackSelected.coolDownTime);
+            } else if(skillAttackSelected.skillStatus == SkillStatus.ready)
+            {
+                skillAttackSlider.color = Color.white;
+                skillAttackSelectedIcon.color = Color.white;  
+                skillAttackSlider.fillAmount = 1;
+            } else if (skillAttackSelected.skillStatus == SkillStatus.active)
+            {
+                skillAttackSlider.fillAmount = skillAttackSelected.activeRemaining/skillAttackSelected.activeTime;
+                skillAttackSlider.color = Color.green;
+            }   
         }
     }
     
@@ -55,21 +72,9 @@ public class ManajerSkill : MonoBehaviour
         {
             return;        
         }
+        skillAttackSelectedIcon.sprite = skillAttackSelected.skillSprite;
         attackButton.onClick.RemoveAllListeners();
         attackButton.onClick.AddListener(() => StartCoroutine(skillAttackSelected.ActivateSkill(character)));    
-        if(skillAttackSelected.skillStatus == SkillStatus.coolDown)
-        {
-            //skillAttackSelectedIcon.color = Color.black;
-            //skillAttackSlider.value = 0;
-        } else if(skillAttackSelected.skillStatus == SkillStatus.ready)
-        {
-            //skillAttackSelectedIcon.color = Color.green;
-            //skillAttackSlider.value = 1;
-        } else if (skillAttackSelected.skillStatus == SkillStatus.active)
-        {
-            //skillAttackSlider.value = skillAttack.activeRemaining/skillAttack.activeTime;
-            //skillAttackSelectedIcon.color = Color.red;
-        }
     }
 
     public void DisplaySkillList()
@@ -114,7 +119,7 @@ public class ManajerSkill : MonoBehaviour
                 {
                     requiredText += skill.skillName + ", ";
                 }
-                textSkillDesc.text = skillAttackList[i].skillDesc +". Required : "+ requiredText;
+                textSkillDesc.text = skillAttackList[i].skillDesc +". Minimum level: "+ skillAttackList[i].unlockLevel +", Required skill   " + requiredText;
             }
 
             if(skillAttackList[i].skillLevel == 5)
@@ -139,8 +144,18 @@ public class ManajerSkill : MonoBehaviour
 
     private void SelectSkill(SkillSO skill)
     {
+        if(skillAttackSelected != null)
+        {
+            if(skillAttackSelected.skillStatus == SkillStatus.active)
+            {
+                skillAttackSelected.RemoveSkillEffect(character);
+                skillAttackSelected.coolDownRemaining = skillAttackSelected.coolDownTime;
+                skillAttackSelected.skillStatus = SkillStatus.coolDown;            
+            }
+        }
         skillAttackSelected = skill;
-        skillAttackSelectedIcon.sprite = skillAttackSelected.skillSprite;
+        skillAttackSelected.coolDownRemaining = skillAttackSelected.coolDownTime;
+        skillAttackSelected.skillStatus = SkillStatus.coolDown;
         DisplayActiveSkill();
     }
 

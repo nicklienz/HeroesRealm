@@ -10,28 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec95a104730dc4648863909f2d6b4a6a, type: 3}
-  m_Name: ChanceRate
+  m_Name: Pengalaman Tinggi
   m_EditorClassIdentifier: 
   job: 0
   skillStatus: 2
-  skillName: Chance Rate
-  skillDesc: Improve 1% critical rate
+  skillEffectType: 0
+  skillActivationType: 0
+  skillName: Pengalaman Tinggi
+  skillDesc: Berguru untuk mendapatkan pengalaman
   skillSprite: {fileID: 21300000, guid: 36ffa3715e1e94cd29a94f09f6532e05, type: 3}
-  coolDownTime: 5
-  activeTime: 5
-  coolDownRemaining: -0.124896854
-  activeRemaining: 5
-  unlocked: 1
-  unlockLevel: 0
-  skillLevel: 5
+  coolDownTime: 40
+  activeTime: 30
+  coolDownRemaining: 40
+  activeRemaining: 30
+  unlocked: 0
+  unlockLevel: 15
+  skillLevel: 0
+  levelMultiplier: 0.02
+  countDownMultiplier: 0
   requiredSkillToUnlock:
-  - {fileID: 11400000, guid: 7ca7b2e8c75a11d40a206e350f5525cf, type: 2}
-  - {fileID: 11400000, guid: 3ea25eed3b3359141b9cf87acd84d56c, type: 2}
+  - {fileID: 11400000, guid: 5d127dd50a0b61b438e2790d4ec9de15, type: 2}
   str: 0
   def: 0
   magic: 0
   criticalRate: 0
-  chanceRate: 0.01
+  chanceRate: 0
   attackRange: 0
   regenDelay: 0
   regenRate: 0
+  goldRate: 0
+  expRate: 0.05

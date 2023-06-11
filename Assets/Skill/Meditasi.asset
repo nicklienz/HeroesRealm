@@ -10,27 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec95a104730dc4648863909f2d6b4a6a, type: 3}
-  m_Name: CriticalAttack
+  m_Name: Meditasi
   m_EditorClassIdentifier: 
   job: 0
   skillStatus: 2
-  skillName: Critical Attack
-  skillDesc: Improve 7% critical rate
-  skillSprite: {fileID: 21300000, guid: e4f77827c1ba34cc2acd94c1149e22ce, type: 3}
-  coolDownTime: 5
-  activeTime: 5
-  coolDownRemaining: -0.124896854
-  activeRemaining: 5
-  unlocked: 1
-  unlockLevel: 0
-  skillLevel: 5
+  skillEffectType: 0
+  skillActivationType: 0
+  skillName: Meditasi
+  skillDesc: Mempercepat proses penyembuhan
+  skillSprite: {fileID: 21300000, guid: 36ffa3715e1e94cd29a94f09f6532e05, type: 3}
+  coolDownTime: 60
+  activeTime: 30
+  coolDownRemaining: 60
+  activeRemaining: 30
+  unlocked: 0
+  unlockLevel: 10
+  skillLevel: 0
+  levelMultiplier: 0.8
+  countDownMultiplier: 0
   requiredSkillToUnlock:
   - {fileID: 11400000, guid: 3ea25eed3b3359141b9cf87acd84d56c, type: 2}
+  - {fileID: 11400000, guid: 7f5815dc75ab500408c875365c3b81e5, type: 2}
   str: 0
   def: 0
   magic: 0
-  criticalRate: 0.07
+  criticalRate: 0
   chanceRate: 0
   attackRange: 0
-  regenDelay: 0
+  regenDelay: 2
   regenRate: 0
+  goldRate: 0
+  expRate: 0

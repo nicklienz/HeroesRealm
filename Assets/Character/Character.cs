@@ -98,8 +98,8 @@ public class Character : MonoBehaviour
     private IEnumerator Regen()
     {
         isRegen = true;
-        yield return new WaitForSeconds(characterSO.regenDelay);
-        if(!isCollide)
+        yield return new WaitForSeconds(characterSO.regenDelay - ManajerSkill.Instance.tempCharSOAttack.regenDelay);
+        if(!isCollide && enemyToAttack == null)
         {
             characterSO.RegenerationHealthMana();
             CheckCharacterLevel();
@@ -158,13 +158,13 @@ public class Character : MonoBehaviour
 
     public IEnumerator AttackingEnemy(Enemy enemy)
     {
-        if (enemy.curEnemyHealth > 0 && enemyToAttack != null)
+        if (enemy.curEnemyHealth > 0 && enemyToAttack != null && characterSO.currentManaPoints >= Equipment.Instance.weaponEquipped.manaCost)
         {
             yield return new WaitForSeconds(intervalAttack);
-            Debug.Log("jalan dalam2");
             ShowEnemyStat();
             AttackType playerAttack = characterSO.RandomPlayerAttack(Equipment.Instance.weaponEquipped, enemy.enemySO.enemyWeakness, enemy.enemySO.enemyImmune);
-            int damage = enemy.enemySO.CalculateDamageToEnemy(playerAttack.amountDamage + characterSO.curStr,playerAttack.element,Equipment.Instance.weaponEquipped.levelUnlock, characterSO.level, characterSO.criticalRate, characterSO.chanceRate);
+            int damage = enemy.enemySO.CalculateDamageToEnemy(playerAttack.amountDamage + characterSO.curStr + ManajerSkill.Instance.tempCharSOAttack.curStr,playerAttack.element,Equipment.Instance.weaponEquipped.levelUnlock, characterSO.level, characterSO.criticalRate, characterSO.chanceRate);
+            characterSO.currentManaPoints -= Equipment.Instance.weaponEquipped.manaCost;
             CheckCharacterLevel();
             CheckCharacterDead();
             enemy.curEnemyHealth -= damage;
@@ -174,7 +174,7 @@ public class Character : MonoBehaviour
         else if (enemy.curEnemyHealth <= 0)
         {
             enemy.EnemyDead(this);
-            characterSO.experiencePoints += Mathf.RoundToInt(enemy.enemySO.enemyExp + (enemy.enemySO.enemyExp * characterSO.expRate));
+            characterSO.experiencePoints += Mathf.RoundToInt(enemy.enemySO.enemyExp + (enemy.enemySO.enemyExp * (characterSO.expRate + ManajerSkill.Instance.tempCharSOAttack.expRate)));
             RemoveEnemy(this.transform); 
             ManajerEnemy.Instance.RemoveEnemy();  
             StartCoroutine(HideEnemyStat());        

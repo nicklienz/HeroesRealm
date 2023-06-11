@@ -22,7 +22,7 @@ MonoBehaviour:
   hargaJual: 10
   levelUnlock: 15
   job: 0
-  manaCost: 0
+  manaCost: 10
   elementAttack:
   - attackName: Default
     element: 0

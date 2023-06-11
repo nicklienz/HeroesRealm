@@ -22,7 +22,7 @@ MonoBehaviour:
   hargaJual: 0
   levelUnlock: 1
   job: 0
-  manaCost: 0
+  manaCost: 5
   elementAttack:
   - attackName: Default
     element: 0
@@ -30,7 +30,7 @@ MonoBehaviour:
     damagePrefab: {fileID: 1858297043041879928, guid: a5ab12dfa1d360f4d8292c302b0f52c8,
       type: 3}
     prefabDestroyTime: 1.5
-  chanceRate: 0
-  criticalRate: 0
-  goldRate: 0
-  expRate: 0
+  chanceRate: 0.001
+  criticalRate: 0.001
+  goldRate: 0.001
+  expRate: 0.001

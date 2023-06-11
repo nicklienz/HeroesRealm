@@ -67,7 +67,7 @@ public class CharacterSO : ScriptableObject
             damage = amount-(amount * thunderDef);
             break;
         }
-        damage -= UnityEngine.Random.Range(randMin, randMax) * curDef;
+        damage -= UnityEngine.Random.Range(randMin, randMax) * (curDef + + ManajerSkill.Instance.tempCharSOAttack.curDef);
         if(damage < 1)
         {
             damage = 0;
@@ -119,7 +119,7 @@ public class CharacterSO : ScriptableObject
     {
         if(currentHealth < maxHealth)
         {
-            currentHealth += Convert.ToInt32(maxHealth * regenRate);
+            currentHealth += Convert.ToInt32(maxHealth * (regenRate + ManajerSkill.Instance.tempCharSOAttack.regenRate));
         }
         if(currentHealth >= maxHealth)
         {
