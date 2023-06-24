@@ -55,9 +55,12 @@ public class Enemy : MonoBehaviour
 
     public void EnemyDead(Character character)
     {
+        enemySO.LootItemEnemyDie(transform);
         Destroy(gameObject, 0f);
         GameObject go = Instantiate(enemySO.particleDead, transform.position, Quaternion.identity);
         Destroy(go, 1f);
         character.characterSO.gold += Mathf.RoundToInt(enemySO.enemyGold + enemySO.enemyGold * (character.characterSO.goldRate + ManajerSkill.Instance.tempCharSOAttack.goldRate)); 
     }
+
 }
+

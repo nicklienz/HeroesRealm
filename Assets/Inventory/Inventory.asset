@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tas:
   - slotId: 1
-    item: {fileID: 0}
+    item: {fileID: 11400000, guid: c5d8bb3f495511f4c8b331e3ae56a461, type: 2}
   - slotId: 2
-    item: {fileID: 0}
+    item: {fileID: 11400000, guid: c5d8bb3f495511f4c8b331e3ae56a461, type: 2}
   - slotId: 3
-    item: {fileID: 11400000, guid: 8896c6f7acf2a2c4d8a936448bced321, type: 2}
+    item: {fileID: 11400000, guid: 4425f65f00cb4d14fa67e3a5909854bd, type: 2}
   - slotId: 4
     item: {fileID: 11400000, guid: 8896c6f7acf2a2c4d8a936448bced321, type: 2}
   - slotId: 5

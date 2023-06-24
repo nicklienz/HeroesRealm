@@ -42,3 +42,9 @@ MonoBehaviour:
     type: 3}
   enemyWeakness: 0
   enemyImmune: 3
+  lootItems:
+  - probabilityRate: 0.01
+    item: {fileID: 11400000, guid: d8d8c89379cc3224a985c641bd82c953, type: 2}
+  - probabilityRate: 0.05
+    item: {fileID: 11400000, guid: c5d8bb3f495511f4c8b331e3ae56a461, type: 2}
+  enemyDropRate: 0.5

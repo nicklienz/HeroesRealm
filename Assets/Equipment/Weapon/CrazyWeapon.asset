@@ -16,7 +16,7 @@ MonoBehaviour:
   consume: 1
   itemName: CrazyWeapon
   itemDesc: Default
-  prefab: {fileID: 6634966716489115371, guid: 620215a1f1ac8b343b605d1f1e4683dd, type: 3}
+  prefab: {fileID: 5610884078883986163, guid: 9fbe61d1f4bc091439f25f985dd189a5, type: 3}
   itemIcon: {fileID: 21300000, guid: b9e07b84080f64b7c9f7459dc208204b, type: 3}
   hargaBeli: 99999
   hargaJual: 10

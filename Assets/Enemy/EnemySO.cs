@@ -38,7 +38,8 @@ public class EnemySO : ScriptableObject
     public GameObject particleCritical, particleMiss, particleDead, enemyDamageText;
     public Element enemyWeakness;
     public Element enemyImmune;
-
+    public List<LootItem> lootItems; 
+    public float enemyDropRate;
     public AttackType RandomEnemyAttack()
     {
         int rand = Random.Range(0,enemyAttack.Count);
@@ -67,7 +68,30 @@ public class EnemySO : ScriptableObject
         }
         return Mathf.RoundToInt(damage);
     }
-
+    private ItemSO RandomLoot()
+    {
+        float random = Random.value;
+        if(random < enemyDropRate)
+        {
+            foreach(LootItem itemLoot in lootItems)
+            {
+                Debug.Log(random +",  " + itemLoot.probabilityRate);
+                if(random < itemLoot.probabilityRate)
+                {
+                    return itemLoot.item;
+                }
+            }
+        }
+        return null;
+    }
+    public void LootItemEnemyDie(Transform position)
+    {
+        ItemSO itemLoot = RandomLoot();
+        if(itemLoot != null)
+        {
+            Instantiate(itemLoot.prefab, position.position + new Vector3(0.5f,0f,0.5f), Quaternion.identity);
+        }
+    }
     public void EnemyTakeDamage(int attackDamage, int amount, GameObject particleHit, GameObject particleDamage, Vector3 position, float time)
     {
         float rate = (float)amount/ (float)attackDamage;
@@ -119,5 +143,17 @@ public class DefenseType
     {
         element = _element;
         rate = _rate;
+    }
+}
+
+[System.Serializable]
+public class LootItem
+{
+    public float probabilityRate;
+    public ItemSO item;
+    public LootItem (ItemSO _item, int _probabilityRate)
+    {
+        probabilityRate = _probabilityRate;
+        item = _item;
     }
 }

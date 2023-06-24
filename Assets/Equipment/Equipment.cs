@@ -23,6 +23,7 @@ public class Equipment : MonoBehaviour
     public ArmourSO headEquipped, shieldEquipped, armEquipped, bodyEquipped, legsEquipped, ringEquipped;
     public Image slotWpn, slotHead, slotShield, slotArm, slotBody, slotLegs, slotRing;
     public Sprite nullHead, nullShield, nullArm, nullBody, nullLegs, nullRing;
+    [SerializeField] Transform wpnTransform, headTransform, shieldTransform, armTransform, bodyTransform, legsTransform, ringTransform;
     public int TotalWeaponStat(Element element)
     {
         int attack = 0;
@@ -71,8 +72,36 @@ public class Equipment : MonoBehaviour
         slotLegs.sprite = legsEquipped != null ? legsEquipped.itemIcon : nullLegs;
         slotRing.sprite = ringEquipped != null ? ringEquipped.itemIcon : nullRing;
         Character character = GameObject.Find("Pemain").GetComponent<Character>();
+
+        ChangeGameObjectEquipment(wpnTransform, weaponEquipped.prefab);
+        /*ChangeGameObjectEquipment(headTransform, headEquipped.prefab);
+        ChangeGameObjectEquipment(shieldTransform, shieldEquipped.prefab);
+        ChangeGameObjectEquipment(bodyTransform, bodyEquipped.prefab);
+        ChangeGameObjectEquipment(armTransform, armEquipped.prefab);
+        ChangeGameObjectEquipment(legsTransform, legsEquipped.prefab);
+        ChangeGameObjectEquipment(ringTransform, ringEquipped.prefab);*/
         character.HitungTotalStatusEquipment();
     }
+
+    private void ChangeGameObjectEquipment(Transform trans, GameObject go)
+    {
+        if(trans == null || go == null)
+        {
+            return;
+        }
+        if(trans.childCount > 0)
+        {
+            foreach (Transform child in trans)
+            {
+                //GameObject.Destroy(child.gameObject);
+                Destroy(child.gameObject,0f);
+            }
+        }
+        GameObject go1 = Instantiate(go);
+        go1.name = go.name;
+        go1.transform.SetParent(trans);
+    }
+
     public void ChangeWeapon(WeaponSO newWeapon, Inventory inventory, int slotId)
     {
         if(weaponEquipped != null && weaponEquipped != defaultWeapon)

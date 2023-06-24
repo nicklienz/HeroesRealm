@@ -16,6 +16,8 @@ public class Character : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lvlText;
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI expText;
+    [SerializeField] private TextMeshProUGUI nameText, jobText, levelText, jobDesc, strText, defText, magicText, criticalText, chanceText, expRateText, goldRateText, hitAttText, fireAtt, iceAtt, soulAtt, thunderAtt, hitDef, fireDef, iceDef, soulDef, thunderDef;
+    [SerializeField] private GameObject charStatusPanel;
     [SerializeField] private List<Transform> enemyCollide;
     [SerializeField] private float intervalAttack;
     public Enemy enemyToAttack;
@@ -27,16 +29,58 @@ public class Character : MonoBehaviour
     [SerializeField] private bool isRegen;
     public bool isCollide, isInTrigger;
     ManajerGame manajerGame;
-    
+    [SerializeField] Animator animator;
+    private string currentState;
+    [SerializeField] GameObject headPrefab, hairPrefab, mouthPrefab, eyePrefab, bodyPrefab; 
     private void Start()
     {
+        animator = GetComponent<Animator>();
         isCollide = false;
         isInTrigger = false;
         HitungTotalStatusEquipment();
         CheckCharacterLevel();
         manajerGame = GameObject.Find("ManajerGame").GetComponent<ManajerGame>();
-        //Button yesPick = panelPick.transform.Find("Yes").GetComponent<Button>();
-        //Button noPick = panelPick.transform.Find("No").GetComponent<Button>();
+        Button yesPick = panelPick.transform.Find("Button_Yes").GetComponent<Button>();
+        Button noPick = panelPick.transform.Find("Button_No").GetComponent<Button>();
+    }
+
+    private void ChangeAnimationState(string newState)
+    {
+        if (currentState == newState) return;
+ 
+        animator.Play(newState);
+        //Debug.Log(newState);
+        currentState = newState;
+    }
+
+    public void ExitDisplayCharacterStatus()
+    {
+        charStatusPanel.gameObject.SetActive(false);
+    }    
+    public void DisplayCharacterStatus()
+    {
+        HitungTotalStatusEquipment();
+        charStatusPanel.gameObject.SetActive(true);
+        nameText.text = characterSO.userName.ToString();
+        jobText.text = characterSO.job.ToString();
+        levelText.text = characterSO.level.ToString();
+        strText.text = characterSO.curStr.ToString();
+        defText.text = characterSO.curDef.ToString();
+        magicText.text = characterSO.curMagic.ToString();
+        criticalText.text = $"{(characterSO.criticalRate*100).ToString()}%";
+        chanceText.text = $"{(characterSO.chanceRate*100).ToString()}%";
+        expRateText.text = $"{(characterSO.expRate*100).ToString()}%";
+        goldRateText.text = $"{(characterSO.goldRate*100).ToString()}%";
+        hitAttText.text = $"{characterSO.hitAtk.ToString()}";
+        fireAtt.text = $"{characterSO.fireAtk.ToString()}";
+        iceAtt.text = $"{characterSO.iceAtk.ToString()}";
+        soulAtt.text = $"{characterSO.soulAtk.ToString()}";
+        thunderAtt.text = $"{characterSO.thunderAtk.ToString()}";
+        hitDef.text = $"{(characterSO.hitDef*100).ToString()}%";
+        fireDef.text = $"{(characterSO.fireDef*100).ToString()}%";
+        iceDef.text = $"{(characterSO.iceDef*100).ToString()}%";
+        soulDef.text = $"{(characterSO.soulDef*100).ToString()}%";
+        thunderDef.text = $"{(characterSO.thunderDef*100).ToString()}%";
     }
     public void CheckCharacterLevel()
     {
@@ -44,6 +88,7 @@ public class Character : MonoBehaviour
         characterSO.CalculateLevelStatus(levelNew);
         if(levelNew != characterSO.level)
         {
+            ChangeAnimationState("level_up");
             characterSO.RestoreHealthMana();
             if (characterSO.skillPointLeft + characterSO.skillPointUsed <= levelNew)
             {
@@ -88,6 +133,7 @@ public class Character : MonoBehaviour
     {
         if(!isCollide && !isRegen)
         {
+            ChangeAnimationState("idle");
             StartCoroutine(Regen());
         } else if (isCollide)
         {
@@ -98,9 +144,11 @@ public class Character : MonoBehaviour
     private IEnumerator Regen()
     {
         isRegen = true;
+        //ChangeAnimationState("idle");
         yield return new WaitForSeconds(characterSO.regenDelay - ManajerSkill.Instance.tempCharSOAttack.regenDelay);
         if(!isCollide && enemyToAttack == null)
         {
+            //animator.Play("idle");
             characterSO.RegenerationHealthMana();
             CheckCharacterLevel();
         }
@@ -158,6 +206,7 @@ public class Character : MonoBehaviour
 
     public IEnumerator AttackingEnemy(Enemy enemy)
     {
+        ChangeAnimationState("battle");
         if (enemy.curEnemyHealth > 0 && enemyToAttack != null && characterSO.currentManaPoints >= Equipment.Instance.weaponEquipped.manaCost)
         {
             yield return new WaitForSeconds(intervalAttack);
@@ -165,6 +214,7 @@ public class Character : MonoBehaviour
             AttackType playerAttack = characterSO.RandomPlayerAttack(Equipment.Instance.weaponEquipped, enemy.enemySO.enemyWeakness, enemy.enemySO.enemyImmune);
             int damage = enemy.enemySO.CalculateDamageToEnemy(playerAttack.amountDamage + characterSO.curStr + ManajerSkill.Instance.tempCharSOAttack.curStr,playerAttack.element,Equipment.Instance.weaponEquipped.levelUnlock, characterSO.level, characterSO.criticalRate, characterSO.chanceRate);
             characterSO.currentManaPoints -= Equipment.Instance.weaponEquipped.manaCost;
+            ChangeAnimationState("attack");
             CheckCharacterLevel();
             CheckCharacterDead();
             enemy.curEnemyHealth -= damage;
@@ -190,6 +240,7 @@ public class Character : MonoBehaviour
     {
         if(characterSO.currentHealth <= 0)
         {
+            ChangeAnimationState("dead");
             characterSO.experiencePoints = System.Convert.ToInt32(characterSO.experiencePoints * 0.9f);
             characterSO.CalculateLevelStatus(characterSO.level);
             manajerGame.RestartGame();

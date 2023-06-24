@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 public class AutoGridWalk : MonoBehaviour
 {
     [SerializeField] Joystick joystick;
-    ManajerTiles manajerTiles;
+    private ManajerTiles manajerTiles;
     private TilemapCollider2D tilemapCollider;
     private float gridSize = 1f;
     private float moveSpeed = 2f;
@@ -18,15 +18,16 @@ public class AutoGridWalk : MonoBehaviour
     [SerializeField] private bool canControlWalk = true; 
     [SerializeField] private bool depan, belakang, kiri, kanan;
     [SerializeField] private Vector3 lookDirection = Vector3.forward;
-    [SerializeField] private Vector3 targetPos, movementDirection;
+    [SerializeField] private Vector3 targetPos;
+    public Vector3 movementDirection;
     [SerializeField] private float rayLength;
     private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
     [SerializeField] private float rotationSpeed;
     [SerializeField] private GameObject pathPrefab, noPathPrefab;
-
     //Rigidbody rb;
     private void Awake()
     {
+        //animator = GetComponent<Animator>();
         manajerTiles = GameObject.Find("ManajerTiles").GetComponent<ManajerTiles>(); 
         tilemapCollider = manajerTiles.tilemap.GetComponent<TilemapCollider2D>();
         targetPos = transform.position;
