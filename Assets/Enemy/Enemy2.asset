@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySprite: {fileID: 21300000, guid: 5a9f75ba1709a4b6f81c9c2416283e6f, type: 3}
   enemyName: Dragon
-  enemyHealth: 250
+  enemyHealth: 25000
   enemyMinAttackRate: 1
   enemyMaxAttackRate: 2
-  enemyExp: 100
+  enemyExp: 23
   enemyGold: 400
   enemyDef: 25
   enemyLevel: 1
   enemyWalkSpeed: 1
-  enemyIntervalMove: 5
+  enemyIntervalMove: 3
   enemyMoveRadius: 2
   enemyDetectRadius: 3
   enemyAttack:

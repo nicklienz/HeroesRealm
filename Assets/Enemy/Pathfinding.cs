@@ -1,104 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
-public class CharacterMovement : MonoBehaviour
+public class Pathfinding : MonoBehaviour
 {
-    public Tilemap tilemap; // Tilemap yang akan digunakan untuk pathfinding
-    public TileBase walkableTile, protectedTile; // Tile yang dianggap sebagai jalur yang bisa dilewati
-    private TilemapCollider2D tilemapCollider;
-    private Grid grid;
-    private float gridSize = 1f;
-    private float moveSpeed = 2f;
-    private float moveDelay = 0f;
-    [SerializeField] List<Vector3Int> pathList;
     private Coroutine moveToPathCoroutine;
-    [SerializeField] private bool depan, belakang, kiri, kanan;
-    private Vector3 lookDirection = Vector3.forward;
-    [SerializeField] private Vector3 targetPos;
+    [SerializeField] private float moveDelay = 0.2f;
+    public bool isMoving = false;
+    [SerializeField] Vector3Int prevTilePos, currTilePos;
 
-    private void Awake()
+    private void Start() 
     {
-        tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
-        grid = tilemap.GetComponentInParent<Grid>();
-        targetPos = transform.position;
-    }
-
-    private void Update() 
-    {
-        float inputHorizontal = Input.GetAxisRaw("Horizontal");
-        float inputVertical = Input.GetAxisRaw("Vertical");
-        /*if(Input.GetMouseButtonDown(0))
-        {
-            targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        } else if*/
-        if (inputHorizontal != 0 || inputVertical != 0)
-        {
-            if(Mathf.Abs(inputHorizontal)> Mathf.Abs(inputVertical))
-                {
-                inputVertical = 0;
-            } else if(Mathf.Abs(inputHorizontal) < Mathf.Abs(inputVertical))
-            {
-                inputHorizontal = 0;
-            }
-
-            // ubah arah pandangan
-            if (inputHorizontal > 0)
-            {
-                lookDirection = Vector3.right;
-                inputVertical = 0; // set inputVertical menjadi 0 agar tidak bisa bergerak vertical
-            }
-            else if (inputHorizontal < 0)
-            {
-                lookDirection = Vector3.left;
-                inputVertical = 0;
-            }
-
-            if (inputVertical > 0)
-            {
-                lookDirection = Vector3.forward;
-                inputHorizontal = 0; // set inputHorizontal menjadi 0 agar tidak bisa bergerak horizontal
-            }
-            else if (inputVertical < 0)
-            {
-                lookDirection = Vector3.back;
-                inputHorizontal = 0;
-            }
-
-            // ubah targetPosition sesuai arah pandangan
-            if ((transform.position - targetPos).magnitude < 0.1f)
-            {
-                if (inputHorizontal > 0 && !kanan)
-                {
-                    targetPos += Vector3.right * gridSize;
-                }
-                if (inputHorizontal < 0 && !kiri)
-                {
-                    targetPos += Vector3.left * gridSize;
-                }
-
-                if (inputVertical > 0 && !depan)
-                {
-                    targetPos += Vector3.forward * gridSize;
-                }
-                if (inputVertical < 0 && !belakang)
-                {
-                    targetPos += Vector3.back * gridSize;
-                }
-            }
-        }
-        Vector3Int tilePos = tilemap.WorldToCell(targetPos);
-        Debug.Log( targetPos + "    "+tilePos);
-        if (tilemap.HasTile(tilePos) && (tilemap.GetTile(tilePos) == walkableTile || tilemap.GetTile(tilePos) == protectedTile)) 
-        {
-            // Jika tile yang ditekan adalah tile yang bisa dilewati,
-            // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
-            Vector3Int startCell = grid.WorldToCell(transform.position);
-            Vector3Int endCell = tilePos;
-            StartPathfinding(startCell, endCell);
-        }
+        prevTilePos = ManajerTiles.Instance.tempTilemap.WorldToCell(transform.position);
     }
 
     private List<Vector3Int> FindPath(Vector3Int start, Vector3Int end)
@@ -149,9 +62,9 @@ public class CharacterMovement : MonoBehaviour
             // Loop melalui tetangga-tetangga current
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                TileBase tile = tilemap.GetTile(neighbor);
+                TileBase tile = ManajerTiles.Instance.tilemap.GetTile(neighbor);
                 // Jika neighbor ada dalam closed list atau tidak dapat dilalui, lewati
-                if (closedList.Contains(neighbor) || tile == null)
+                if (closedList.Contains(neighbor) || tile == ManajerTiles.Instance.protectedTile || tile == null || tile == ManajerTiles.Instance.temporaryTile)
                 {
                     continue;
                 }
@@ -210,13 +123,13 @@ public class CharacterMovement : MonoBehaviour
 
         return neighbors;
     }
+
     private float GetDistance(Vector3Int a, Vector3Int b)
     {
     // Menggunakan Manhattan distance sebagai heuristic
     return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
     }
-
-    public void StartPathfinding(Vector3Int start, Vector3Int end)
+    public void StartPathfinding(Vector3Int start, Vector3Int end, float moveSpeed)
     {
         // Reset path sebelumnya jika ada
         if (moveToPathCoroutine != null)
@@ -231,32 +144,51 @@ public class CharacterMovement : MonoBehaviour
         // Jika ditemukan path, jalankan Coroutine MoveToPath
         if (path != null)
         {
-            moveToPathCoroutine = StartCoroutine(MoveToPath(path));
+            moveToPathCoroutine = StartCoroutine(MoveToPath(path, moveSpeed));
         }
     }
-
-    private IEnumerator MoveToPath(List<Vector3Int> path)
+    private IEnumerator MoveToPath(List<Vector3Int> path, float moveSpeed)
     {
         // Menentukan kecepatan pergerakan karakter
         // Loop untuk menggerakkan karakter ke setiap sel dalam path
         for (int i = 0; i < path.Count; i++)
         {
             // Menghitung posisi dunia dari sel pada path
-            Vector3 targetPosition = tilemap.CellToWorld(path[i]);
+            Vector3 targetPosition = ManajerTiles.Instance.tilemap.CellToWorld(path[i]);
+
             // Menggerakkan karakter secara smooth menuju target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-                targetPos = targetPosition;
+                Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                newPos.y = transform.position.y;
+                isMoving = true;
+                transform.position = newPos;
                 yield return null;
+                OccupyTilemap();
             }
+            isMoving = false;
             // Menunggu sejenak sebelum melanjutkan ke sel berikutnya
             yield return new WaitForSeconds(moveDelay);
         }
-
+        
         // Reset Coroutine menjadi null setelah selesai
+        isMoving = false;
         moveToPathCoroutine = null;
     }
-}
 
-           
+    private void OccupyTilemap()
+    {
+        currTilePos = ManajerTiles.Instance.tempTilemap.WorldToCell(transform.position);
+        if (currTilePos != prevTilePos)
+        {
+            // Hapus tile pada posisi sebelumnya
+            ManajerTiles.Instance.tempTilemap.SetTile(prevTilePos, null);
+
+            // Atur tile baru pada posisi saat ini
+            ManajerTiles.Instance.tempTilemap.SetTile(currTilePos,ManajerTiles.Instance.temporaryTile);
+
+            // Perbarui posisi sel tile sebelumnya menjadi posisi saat ini
+            prevTilePos = currTilePos;
+        }
+    }
+}

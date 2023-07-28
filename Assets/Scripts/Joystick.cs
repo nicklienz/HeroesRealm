@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
     public float speed = 5f;  // kecepatan karakter
+    public float sensitivity = 0.5f; // sensitivitas joystick (adjust this value as needed)
+
     [SerializeField] private Image joystickBG; // gambar latar belakang joystick
     [SerializeField] private Image joystick;   // gambar joystick
     public Vector3 inputVector;
@@ -33,6 +35,10 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
 
             inputVector = new Vector3(x, 0, y);
             inputVector = (inputVector.magnitude > 1.0f) ? inputVector.normalized : inputVector;
+
+            // Apply sensitivity to the input vector
+            inputVector *= sensitivity;
+
             joystick.rectTransform.anchoredPosition = Vector3.zero;
             joystick.rectTransform.anchoredPosition = new Vector3(inputVector.x * (joystickBG.rectTransform.sizeDelta.x / 3), inputVector.z * (joystickBG.rectTransform.sizeDelta.y / 3));
         }

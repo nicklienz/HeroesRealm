@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: WizDefault
   m_EditorClassIdentifier: 
   job: 1
+  modelPrefab: 
   userName: 
   gold: 200
   level: 1
@@ -52,8 +53,10 @@ MonoBehaviour:
     type: 3}
   particleMiss: {fileID: 5381094072997160552, guid: a0013831b5bcffc4386b755c0e30c505,
     type: 3}
-  playerDamageText: {fileID: 1379972122502709475, guid: 36073594ced8f964ab385b03355a72a2,
-    type: 3}
   regenDelay: 6
   regenRate: 0.06
-  position: {x: 0, y: 0, z: 0}
+  skillPointUsed: 0
+  skillPointLeft: 0
+  x: 5
+  y: 0
+  z: 5

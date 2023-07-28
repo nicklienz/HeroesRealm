@@ -5,7 +5,6 @@ using UnityEngine.Tilemaps;
 
 public class EnemyMovement : MonoBehaviour
 {
-    ManajerTiles manajerTiles;
     Enemy enemy;
     private TilemapCollider2D tilemapCollider;
     [SerializeField] List<Vector3Int> pathList;
@@ -15,18 +14,19 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] bool patrol, moving, kejar, attacking;
     [SerializeField] private float rayLength, sphereRadius;
     private Vector3 offsetRay = new Vector3(0.5f, 0.5f, 0.5f);
-    [SerializeField] private Vector3 lookDirection, movementDirection;
+    [SerializeField] private Vector3 lookDirection, movementDirection, previousPosition;
     private float gridSize = 1f;
 
     private void Awake()
     {
-        manajerTiles = GameObject.Find("ManajerTiles").GetComponent<ManajerTiles>(); 
-        tilemapCollider = manajerTiles.tilemap.GetComponent<TilemapCollider2D>();
+        tilemapCollider = ManajerTiles.Instance.tilemap.GetComponent<TilemapCollider2D>();
         spawnPos = Vector3Int.RoundToInt(transform.position);
     }
     private void Start() 
     {
-        enemy = this.gameObject.GetComponent<Enemy>();    
+        enemy = this.gameObject.GetComponent<Enemy>();
+        previousPosition = spawnPos;    
+        OccupyTilemap(previousPosition);
         patrol = false;
         moving = false;
         kejar = false;
@@ -98,27 +98,18 @@ public class EnemyMovement : MonoBehaviour
         }
         
     }    
-    private void OnDrawGizmosSelected()
-    {
-        // Draw a wire sphere in the Unity Editor to visualize the detection radius
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + offsetRay, enemy.enemySO.enemyDetectRadius);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position + offsetRay, sphereRadius);
-    }
     private IEnumerator EnemyAIMove()
     {
         while (!moving && patrol)
         {
             StartCoroutine(SeekRandomPath());
             yield return null;
-            Vector3Int tilePosition = manajerTiles.tilemap.WorldToCell(randomDest);
-            if (manajerTiles.tilemap.HasTile(tilePosition) && manajerTiles.tilemap.GetTile(tilePosition) == manajerTiles.walkableTile)
+            Vector3Int tilePosition = ManajerTiles.Instance.tilemap.WorldToCell(randomDest);
+            if (ManajerTiles.Instance.tilemap.HasTile(tilePosition) && ManajerTiles.Instance.tilemap.GetTile(tilePosition) == ManajerTiles.Instance.walkableTile)
             {
                 // Jika tile yang ditekan adalah tile yang bisa dilewati,
                 // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
-                Vector3Int startCell = manajerTiles.grid.WorldToCell(transform.position);
+                Vector3Int startCell = ManajerTiles.Instance.grid.WorldToCell(transform.position);
                 Vector3Int endCell = tilePosition;
                 StartPathfinding(startCell, endCell);
                 //Debug.Log("executed");
@@ -129,12 +120,12 @@ public class EnemyMovement : MonoBehaviour
     }
     private IEnumerator EnemyAIKejar(Transform playerTransform)
     {
-        Vector3Int tilePosition = manajerTiles.tilemap.WorldToCell(playerTransform.position);
-        if (manajerTiles.tilemap.HasTile(tilePosition) && manajerTiles.tilemap.GetTile(tilePosition) == manajerTiles.walkableTile)
+        Vector3Int tilePosition = ManajerTiles.Instance.tilemap.WorldToCell(playerTransform.position);
+        if (ManajerTiles.Instance.tilemap.HasTile(tilePosition) && ManajerTiles.Instance.tilemap.GetTile(tilePosition) == ManajerTiles.Instance.walkableTile)
         {
             // Jika tile yang ditekan adalah tile yang bisa dilewati,
             // jalankan algoritma A* untuk mencari path dari posisi karakter ke posisi klik
-            Vector3Int startCell = manajerTiles.grid.WorldToCell(transform.position);
+            Vector3Int startCell = ManajerTiles.Instance.grid.WorldToCell(transform.position);
             Vector3Int endCell = tilePosition;
             StartPathfinding(startCell, endCell);
         }
@@ -189,9 +180,9 @@ public class EnemyMovement : MonoBehaviour
             // Loop melalui tetangga-tetangga current
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                TileBase tile = manajerTiles.tilemap.GetTile(neighbor);
+                TileBase tile = ManajerTiles.Instance.tilemap.GetTile(neighbor);
                 // Jika neighbor ada dalam closed list atau tidak dapat dilalui, lewati
-                if (closedList.Contains(neighbor) || tile == manajerTiles.protectedTile || tile == null)
+                if (closedList.Contains(neighbor) || tile == ManajerTiles.Instance.protectedTile || tile == null)
                 {
                     continue;
                 }
@@ -297,7 +288,7 @@ public class EnemyMovement : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             // Menghitung posisi dunia dari sel pada path
-            Vector3 targetPosition = manajerTiles.tilemap.CellToWorld(path[i]);
+            Vector3 targetPosition = ManajerTiles.Instance.tilemap.CellToWorld(path[i]);
 
             // Menggerakkan karakter secara smooth menuju target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
@@ -312,6 +303,7 @@ public class EnemyMovement : MonoBehaviour
                 movementDirection = targetPosition - transform.position;
                 LookRotation();
                 Vector3 newPos = Vector3.MoveTowards(transform.position, targetPosition, enemy.enemySO.enemyWalkSpeed * Time.deltaTime);
+                OccupyTilemap(targetPosition);
                 newPos.y = transform.position.y;
                 transform.position = newPos;
                 yield return null;
@@ -326,6 +318,19 @@ public class EnemyMovement : MonoBehaviour
         moving = false;
         patrol = false;
         kejar = false;
+    }
+    public void OccupyTilemap(Vector3 newPosition)
+    {
+        // Hapus tile di posisi sebelumnya
+        Vector3Int previousPos = ManajerTiles.Instance.tempTilemap.WorldToCell(previousPosition);
+        Vector3Int newPos =  ManajerTiles.Instance.tempTilemap.WorldToCell(newPosition);
+        ManajerTiles.Instance.RemoveTile(previousPos);
+
+        // Tambahkan tile di posisi baru
+        ManajerTiles.Instance.AddTile(newPos);
+
+        // Lakukan update posisi sebelumnya dengan posisi yang baru
+        previousPosition = newPosition;
     }
     private void LookRotation()
     {

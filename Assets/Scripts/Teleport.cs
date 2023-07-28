@@ -12,9 +12,11 @@ public class Teleport : MonoBehaviour
     [SerializeField] private GameObject slotTeleport;
     private TextMeshProUGUI title;
     private Button exitTeleport;
+
+    private PlayerMovement playerMovement;
     // Start is called before the first frame update
 
-    public void DisplayTeleportTemplate(Character character, AutoGridWalk autoGridWalk)
+    public void DisplayTeleportTemplate(Character character)
     {
         template.SetActive(true);
         exitTeleport = template.transform.Find("TopBar").transform.Find("Button_Back").GetComponent<Button>();
@@ -45,19 +47,19 @@ public class Teleport : MonoBehaviour
             textPrice.text = destinationList[i].gold.ToString();
             slot.transform.SetParent(slotParent);
             buttonOk.onClick.RemoveAllListeners();
-            buttonOk.onClick.AddListener(() => TeleportTo(character, destinationList[currentIndex], autoGridWalk));
+            buttonOk.onClick.AddListener(() => TeleportTo(character, destinationList[currentIndex]));
             //Debug.Log(character +" "+ destinationList[i].destName +" "+ autoGridWalk);
         }
     }
 
-    public void TeleportTo(Character character, Destination destination, AutoGridWalk autoGridWalk)
+    public void TeleportTo(Character character, Destination destination)
     {
         //Debug.Log(character +" "+ destination +" "+ autoGridWalk);
         if(character.characterSO.gold >= destination.gold)
         {
+            playerMovement.TeleportPos(destination.destination.position + new Vector3 (2f,0,0));
             character.characterSO.gold -= destination.gold;
             character.transform.position = destination.destination.position + new Vector3 (2f,0,0);
-            autoGridWalk.Teleporting(destination.destination.position+ new Vector3 (2f,0,0));
             ManajerNotification.Instance.messageSuccessText.text = "Berhasil teleport ke " + destination.destName;
             StartCoroutine(ManajerNotification.Instance.ShowMessage(MessageType.Success));
             character.CheckCharacterLevel();
@@ -73,9 +75,9 @@ public class Teleport : MonoBehaviour
     {
         if(other.gameObject.tag == "Player")
         {
-            AutoGridWalk autoGrid = other.gameObject.GetComponent<AutoGridWalk>();
             Character character = other.gameObject.GetComponent<Character>();
-            DisplayTeleportTemplate(character,autoGrid);
+            playerMovement = other.gameObject.GetComponent<PlayerMovement>();
+            DisplayTeleportTemplate(character);
         }                    
     }
 

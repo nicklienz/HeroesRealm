@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class CharacterDisplayStatus : MonoBehaviour
 {
-    [SerializeField] CharacterSO characterSO;
+
     void Start()
     {
         

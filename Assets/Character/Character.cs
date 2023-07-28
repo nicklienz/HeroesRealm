@@ -8,79 +8,73 @@ using System.Linq;
 public class Character : MonoBehaviour
 {
     public CharacterSO characterSO;
-    [SerializeField] private Slider healthSlider;
-    [SerializeField] private Slider manaSlider;
-    [SerializeField] private Slider expSlider;
-    [SerializeField] private TextMeshProUGUI userNameText;
-    [SerializeField] private TextMeshProUGUI healthText;
-    [SerializeField] private TextMeshProUGUI lvlText;
-    [SerializeField] private TextMeshProUGUI goldText;
-    [SerializeField] private TextMeshProUGUI expText;
-    [SerializeField] private TextMeshProUGUI nameText, jobText, levelText, jobDesc, strText, defText, magicText, criticalText, chanceText, expRateText, goldRateText, hitAttText, fireAtt, iceAtt, soulAtt, thunderAtt, hitDef, fireDef, iceDef, soulDef, thunderDef;
-    [SerializeField] private GameObject charStatusPanel;
+    ReferenceUIPemain referenceUIPemain;
+    [SerializeField] private GameObject playerDamageText;
     [SerializeField] private List<Transform> enemyCollide;
     [SerializeField] private float intervalAttack;
     public Enemy enemyToAttack;
-    [SerializeField] private Slider enemyHealthSlider;
-    [SerializeField] private TextMeshProUGUI enemyName;
-    [SerializeField] private Image enemyIcon, enemyLevel;
-    [SerializeField] private GameObject panelPick;
-    [SerializeField] private Button yesPick, noPick;
     [SerializeField] private bool isRegen;
     public bool isCollide, isInTrigger;
-    ManajerGame manajerGame;
-    [SerializeField] Animator animator;
-    private string currentState;
-    [SerializeField] GameObject headPrefab, hairPrefab, mouthPrefab, eyePrefab, bodyPrefab; 
+    private ManajerGame manajerGame;
+    private Animator animator;
+    private string currentState = "idle";
     private void Start()
     {
-        animator = GetComponent<Animator>();
+        transform.position = characterSO.ReturnPosition();
+        referenceUIPemain = GameObject.Find("ManajerDisplayUIPemain").GetComponent<ReferenceUIPemain>();
+        SpawnCharacter();
+        animator = GetComponentInChildren<Animator>();
         isCollide = false;
         isInTrigger = false;
         HitungTotalStatusEquipment();
         CheckCharacterLevel();
         manajerGame = GameObject.Find("ManajerGame").GetComponent<ManajerGame>();
-        Button yesPick = panelPick.transform.Find("Button_Yes").GetComponent<Button>();
-        Button noPick = panelPick.transform.Find("Button_No").GetComponent<Button>();
+        ChangeAnimationState(currentState);
     }
 
-    private void ChangeAnimationState(string newState)
+    private void SpawnCharacter()
+    {
+        GameObject go = Instantiate(Resources.Load<GameObject>(characterSO.modelPrefab), this.transform, false);
+        go.transform.SetParent(this.transform, false);
+        go.transform.localPosition = new Vector3(0.5f,0,0.5f);
+        Equipment.Instance.GetEquipmentTransform(go.transform);
+    }
+
+    public void ChangeAnimationState(string newState)
     {
         if (currentState == newState) return;
- 
         animator.Play(newState);
-        //Debug.Log(newState);
         currentState = newState;
     }
 
     public void ExitDisplayCharacterStatus()
     {
-        charStatusPanel.gameObject.SetActive(false);
+        referenceUIPemain.charStatusPanel.gameObject.SetActive(false);
     }    
     public void DisplayCharacterStatus()
     {
         HitungTotalStatusEquipment();
-        charStatusPanel.gameObject.SetActive(true);
-        nameText.text = characterSO.userName.ToString();
-        jobText.text = characterSO.job.ToString();
-        levelText.text = characterSO.level.ToString();
-        strText.text = characterSO.curStr.ToString();
-        defText.text = characterSO.curDef.ToString();
-        magicText.text = characterSO.curMagic.ToString();
-        criticalText.text = $"{(characterSO.criticalRate*100).ToString()}%";
-        chanceText.text = $"{(characterSO.chanceRate*100).ToString()}%";
-        expRateText.text = $"{(characterSO.expRate*100).ToString()}%";
-        goldRateText.text = $"{(characterSO.goldRate*100).ToString()}%";
-        hitAttText.text = $"{characterSO.hitAtk.ToString()}";
-        fireAtt.text = $"{characterSO.fireAtk.ToString()}";
-        iceAtt.text = $"{characterSO.iceAtk.ToString()}";
-        soulAtt.text = $"{characterSO.soulAtk.ToString()}";
-        thunderAtt.text = $"{characterSO.thunderAtk.ToString()}";
-        hitDef.text = $"{(characterSO.hitDef*100).ToString()}%";
-        fireDef.text = $"{(characterSO.fireDef*100).ToString()}%";
-        iceDef.text = $"{(characterSO.iceDef*100).ToString()}%";
-        soulDef.text = $"{(characterSO.soulDef*100).ToString()}%";
-        thunderDef.text = $"{(characterSO.thunderDef*100).ToString()}%";
+        referenceUIPemain.gameObject.SetActive(true);
+        referenceUIPemain.nameText.text = characterSO.userName.ToString();
+        referenceUIPemain.jobText.text = characterSO.job.ToString();
+        referenceUIPemain.levelText.text = characterSO.level.ToString();
+        referenceUIPemain.strText.text = characterSO.curStr.ToString();
+        referenceUIPemain.defText.text = characterSO.curDef.ToString();
+        referenceUIPemain.magicText.text = characterSO.curMagic.ToString();
+        referenceUIPemain.criticalText.text = $"{(characterSO.criticalRate*100).ToString()}%";
+        referenceUIPemain.chanceText.text = $"{(characterSO.chanceRate*100).ToString()}%";
+        referenceUIPemain.expRateText.text = $"{(characterSO.expRate*100).ToString()}%";
+        referenceUIPemain.goldRateText.text = $"{(characterSO.goldRate*100).ToString()}%";
+        referenceUIPemain.hitAttText.text = $"{characterSO.hitAtk.ToString()}";
+        referenceUIPemain.fireAtt.text = $"{characterSO.fireAtk.ToString()}";
+        referenceUIPemain.iceAtt.text = $"{characterSO.iceAtk.ToString()}";
+        referenceUIPemain.soulAtt.text = $"{characterSO.soulAtk.ToString()}";
+        referenceUIPemain.thunderAtt.text = $"{characterSO.thunderAtk.ToString()}";
+        referenceUIPemain.hitDef.text = $"{(characterSO.hitDef*100).ToString()}%";
+        referenceUIPemain.fireDef.text = $"{(characterSO.fireDef*100).ToString()}%";
+        referenceUIPemain.iceDef.text = $"{(characterSO.iceDef*100).ToString()}%";
+        referenceUIPemain.soulDef.text = $"{(characterSO.soulDef*100).ToString()}%";
+        referenceUIPemain.thunderDef.text = $"{(characterSO.thunderDef*100).ToString()}%";
     }
     public void CheckCharacterLevel()
     {
@@ -102,14 +96,14 @@ public class Character : MonoBehaviour
         }
         characterSO.level = levelNew;
         float beforeExp = ManajerLevel.Instance.GetExpForLevel(characterSO.level);
-        expSlider.value = ((float)characterSO.experiencePoints-beforeExp)/((float)ManajerLevel.Instance.GetExpForLevel(characterSO.level+1)-beforeExp);
-        expText.text = characterSO.experiencePoints.ToString() +"/"+ ManajerLevel.Instance.GetExpForLevel(characterSO.level+1).ToString();
-        healthSlider.value = ((float)characterSO.currentHealth/(float)characterSO.maxHealth);
-        manaSlider.value = ((float)characterSO.currentManaPoints/(float)characterSO.maxManaPoints);
-        userNameText.text = characterSO.userName;
-        healthText.text = characterSO.currentHealth+"/"+characterSO.maxHealth;
-        lvlText.text = characterSO.level.ToString();
-        goldText.text = characterSO.gold.ToString();
+        referenceUIPemain.expSlider.value = ((float)characterSO.experiencePoints-beforeExp)/((float)ManajerLevel.Instance.GetExpForLevel(characterSO.level+1)-beforeExp);
+        referenceUIPemain.expText.text = characterSO.experiencePoints.ToString() +"/"+ ManajerLevel.Instance.GetExpForLevel(characterSO.level+1).ToString();
+        referenceUIPemain.healthSlider.value = ((float)characterSO.currentHealth/(float)characterSO.maxHealth);
+        referenceUIPemain.manaSlider.value = ((float)characterSO.currentManaPoints/(float)characterSO.maxManaPoints);
+        referenceUIPemain.userNameText.text = characterSO.userName;
+        referenceUIPemain.healthText.text = characterSO.currentHealth+"/"+characterSO.maxHealth;
+        referenceUIPemain.lvlText.text = characterSO.level.ToString();
+        referenceUIPemain.goldText.text = characterSO.gold.ToString();
     }
 
     public void HitungTotalStatusEquipment()
@@ -133,7 +127,6 @@ public class Character : MonoBehaviour
     {
         if(!isCollide && !isRegen)
         {
-            ChangeAnimationState("idle");
             StartCoroutine(Regen());
         } else if (isCollide)
         {
@@ -164,22 +157,22 @@ public class Character : MonoBehaviour
     }
     private void ShowEnemyStat()
     {
-        enemyHealthSlider.gameObject.SetActive(true);
-        enemyName.gameObject.SetActive(true);
-        enemyIcon.gameObject.SetActive(true);
-        enemyLevel.gameObject.SetActive(true);
-        enemyIcon.sprite = enemyToAttack.enemySO.enemySprite;
-        enemyLevel.color = enemyToAttack.color;
-        enemyName.text = enemyToAttack.enemySO.enemyName;
-        enemyHealthSlider.value = (float)enemyToAttack.curEnemyHealth/ (float)enemyToAttack.enemySO.enemyHealth;
+        referenceUIPemain.gameObject.SetActive(true);
+        referenceUIPemain.enemyName.gameObject.SetActive(true);
+        referenceUIPemain.enemyIcon.gameObject.SetActive(true);
+        referenceUIPemain.enemyLevel.gameObject.SetActive(true);
+        referenceUIPemain.enemyIcon.sprite = enemyToAttack.enemySO.enemySprite;
+        referenceUIPemain.enemyLevel.color = enemyToAttack.color;
+        referenceUIPemain.enemyName.text = enemyToAttack.enemySO.enemyName;
+        referenceUIPemain.enemyHealthSlider.value = (float)enemyToAttack.curEnemyHealth/ (float)enemyToAttack.enemySO.enemyHealth;
     }
     private IEnumerator HideEnemyStat()
     {
         yield return new WaitForSeconds(1.5f);
-        enemyHealthSlider.gameObject.SetActive(false);
-        enemyName.gameObject.SetActive(false);
-        enemyIcon.gameObject.SetActive(false);
-        enemyLevel.gameObject.SetActive(false);
+        referenceUIPemain.enemyHealthSlider.gameObject.SetActive(false);
+        referenceUIPemain.enemyName.gameObject.SetActive(false);
+        referenceUIPemain.enemyIcon.gameObject.SetActive(false);
+        referenceUIPemain.enemyLevel.gameObject.SetActive(false);
     }
     public void RemoveEnemy(Transform enemy)
     {
@@ -218,10 +211,10 @@ public class Character : MonoBehaviour
             CheckCharacterLevel();
             CheckCharacterDead();
             enemy.curEnemyHealth -= damage;
-            enemy.enemySO.EnemyTakeDamage(playerAttack.amountDamage, damage, playerAttack.damagePrefab, characterSO.playerDamageText, enemy.transform.position, playerAttack.prefabDestroyTime);
+            enemy.enemySO.EnemyTakeDamage(playerAttack.amountDamage, damage, playerAttack.damagePrefab, playerDamageText, enemy.transform.position, playerAttack.prefabDestroyTime);
             ShowEnemyStat();
         }
-        else if (enemy.curEnemyHealth <= 0)
+        if (enemy.curEnemyHealth <= 0)
         {
             enemy.EnemyDead(this);
             characterSO.experiencePoints += Mathf.RoundToInt(enemy.enemySO.enemyExp + (enemy.enemySO.enemyExp * (characterSO.expRate + ManajerSkill.Instance.tempCharSOAttack.expRate)));
@@ -260,22 +253,22 @@ public class Character : MonoBehaviour
         other.gameObject.tag == "Arm")
         {
             isInTrigger = true;
-            panelPick.SetActive(true);
+            referenceUIPemain.panelPick.SetActive(true);
             ConfirmPickItem(other.gameObject);
         }
     }
 
     private void ConfirmPickItem(GameObject go)
     {
-        yesPick.onClick.RemoveAllListeners();
-        noPick.onClick.RemoveAllListeners();
-        yesPick.onClick.AddListener(() => PickItem(go));
-        noPick.onClick.AddListener(() => CancelPick());   
+        referenceUIPemain.yesPick.onClick.RemoveAllListeners();
+        referenceUIPemain.noPick.onClick.RemoveAllListeners();
+        referenceUIPemain.yesPick.onClick.AddListener(() => PickItem(go));
+        referenceUIPemain.noPick.onClick.AddListener(() => CancelPick());   
     }
 
     private void CancelPick()
     {
-        panelPick.SetActive(false);
+        referenceUIPemain.panelPick.SetActive(false);
     }
     private void PickItem(GameObject other)
     {
@@ -291,7 +284,7 @@ public class Character : MonoBehaviour
             StartCoroutine(ManajerNotification.instance.ShowMessage(MessageType.Error));
             ManajerNotification.Instance.messageErrorText.text = "Tas penuh!";
         }
-        panelPick.SetActive(false);
+        referenceUIPemain.panelPick.SetActive(false);
     }
     private void OnTriggerExit(Collider other) 
     {
@@ -317,5 +310,10 @@ public class Character : MonoBehaviour
                 isCollide = false;
             }
         }
+    }
+
+    public void LogoutAccount()
+    {
+        AccountDatabase.LogoutAccount(characterSO.userName);
     }
 }

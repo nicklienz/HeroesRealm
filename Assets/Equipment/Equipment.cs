@@ -43,6 +43,46 @@ public class Equipment : MonoBehaviour
         return attack;
     }
 
+
+    private Transform GetChildByNameRecursive(Transform parent, string childName)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            Transform foundChild = GetChildByNameRecursive(child, childName);
+            if (foundChild != null)
+            {
+                return foundChild;
+            }
+        }
+
+        return null;
+    }
+
+    private Transform GetChildByName(Transform parentObject, string childObjectName)
+    {
+        Transform foundChild = GetChildByNameRecursive(parentObject, childObjectName);
+
+        if (foundChild != null)
+        {
+            return foundChild;
+        }
+        else
+        {
+            Debug.LogWarning("Child GameObject with name '" + childObjectName + "' not found!");
+            return null;
+        }
+    }
+
+    public void GetEquipmentTransform(Transform characterTransform)
+    {
+        wpnTransform = GetChildByNameRecursive(characterTransform, "weapon_r");
+        shieldTransform = GetChildByNameRecursive(characterTransform, "weapon_l");
+    }
     private void Start()
     {
         DisplayEquipment();
@@ -74,8 +114,8 @@ public class Equipment : MonoBehaviour
         Character character = GameObject.Find("Pemain").GetComponent<Character>();
 
         ChangeGameObjectEquipment(wpnTransform, weaponEquipped.prefab);
-        /*ChangeGameObjectEquipment(headTransform, headEquipped.prefab);
         ChangeGameObjectEquipment(shieldTransform, shieldEquipped.prefab);
+        /*ChangeGameObjectEquipment(headTransform, headEquipped.prefab);
         ChangeGameObjectEquipment(bodyTransform, bodyEquipped.prefab);
         ChangeGameObjectEquipment(armTransform, armEquipped.prefab);
         ChangeGameObjectEquipment(legsTransform, legsEquipped.prefab);
@@ -97,7 +137,7 @@ public class Equipment : MonoBehaviour
                 Destroy(child.gameObject,0f);
             }
         }
-        GameObject go1 = Instantiate(go);
+        GameObject go1 = Instantiate(go, trans, false);
         go1.name = go.name;
         go1.transform.SetParent(trans);
     }

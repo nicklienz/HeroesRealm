@@ -94,9 +94,10 @@ GameObject:
   - component: {fileID: 7141120105367969438}
   - component: {fileID: 7141120105367969433}
   - component: {fileID: 7141120105367969436}
-  - component: {fileID: 7141120105367969437}
   - component: {fileID: 2293985011305086133}
   - component: {fileID: 1186842703565969210}
+  - component: {fileID: 400182723864470543}
+  - component: {fileID: 669885226399792777}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Enemy
@@ -156,32 +157,6 @@ MonoBehaviour:
   prevDest: {x: 0, y: 0, z: 0}
   playerCollided: {fileID: 0}
   playerDetected: {fileID: 0}
---- !u!114 &7141120105367969437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7141120105367969432}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2aa0a6f2cbb2c544a0045d94140babc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathList: []
-  moveDelay: 0.2
-  spawnPos: {x: 0, y: 0, z: 0}
-  randomDest: {x: 0, y: 0, z: 0}
-  minRange: {x: 0, y: 0, z: 0}
-  maxRange: {x: 0, y: 0, z: 0}
-  patrol: 0
-  moving: 0
-  kejar: 0
-  attacking: 0
-  rayLength: 0
-  sphereRadius: 0.6
-  lookDirection: {x: 0, y: 0, z: 0}
-  movementDirection: {x: 0, y: 0, z: 0}
 --- !u!54 &2293985011305086133
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -218,6 +193,41 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &400182723864470543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7141120105367969432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 548c02e1dae4566458385802b94a4a22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPos: {x: 0, y: 0, z: 0}
+  randomDest: {x: 0, y: 0, z: 0}
+  patrol: 0
+  moving: 0
+  kejar: 0
+  attacking: 0
+  sphereRadius: 0.6
+  lookDirection: {x: 0, y: 0, z: 0}
+  movementDirection: {x: 0, y: 0, z: 0}
+  previousPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &669885226399792777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7141120105367969432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdce984a09095f445af7706168c16aca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveDelay: 0.2
 --- !u!1 &7141120105777615326
 GameObject:
   m_ObjectHideFlags: 0

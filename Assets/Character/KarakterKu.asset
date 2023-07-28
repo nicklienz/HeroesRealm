@@ -10,53 +10,53 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ce5bb4dfad91bf4295b7d0235df0aba, type: 3}
-  m_Name: WarDefault
+  m_Name: KarakterKu
   m_EditorClassIdentifier: 
   job: 0
-  modelPrefab: MaleCharacterPBR
+  modelPrefab: FemaleCharacterPBR
   userName: 
-  gold: 200
-  level: 1
-  startHealth: 140
-  maxHealth: 140
-  currentHealth: 140
+  gold: 1117
+  level: 48
+  startHealth: 150
+  maxHealth: 630
+  currentHealth: 630
   healthMultiplier: 10
   startMana: 30
-  maxManaPoints: 30
-  currentManaPoints: 30
-  manaMultiplier: 3
-  experiencePoints: 1100
+  maxManaPoints: 222
+  currentManaPoints: 222
+  manaMultiplier: 4
+  experiencePoints: 1138
   startStr: 5
   startDef: 3
   startMagic: 1
-  curStr: 0
-  curDef: 0
-  curMagic: 0
+  curStr: 101
+  curDef: 51
+  curMagic: 49
   strMultiplier: 2
   defMultiplier: 1
   magicMultiplier: 1
-  criticalRate: 3
-  chanceRate: 3
-  goldRate: 3
-  expRate: 3
-  hitAtk: 3
-  fireAtk: 3
-  iceAtk: 3
-  soulAtk: 3
-  thunderAtk: 3
-  hitDef: 3
-  fireDef: 3
-  iceDef: 3
-  soulDef: 3
-  thunderDef: 3
+  criticalRate: 0.002
+  chanceRate: 0.006
+  goldRate: 0.003
+  expRate: 0.0013000001
+  hitAtk: 2
+  fireAtk: 0
+  iceAtk: 0
+  soulAtk: 0
+  thunderAtk: 0
+  hitDef: 0.03
+  fireDef: 0
+  iceDef: 0.02
+  soulDef: 0
+  thunderDef: 0.04
   particleCritical: {fileID: 2478428915844695587, guid: c13875fa94f5c3d489fe540cf391621c,
     type: 3}
   particleMiss: {fileID: 5381094072997160552, guid: a0013831b5bcffc4386b755c0e30c505,
     type: 3}
   regenDelay: 6
   regenRate: 0.05
-  skillPointUsed: 0
-  skillPointLeft: 1
-  x: 5
+  skillPointUsed: 35
+  skillPointLeft: 13
+  x: 6
   y: 0
-  z: 5
+  z: -4

@@ -15,17 +15,18 @@ public enum Job
 public class CharacterSO : ScriptableObject
 {
     public Job job;
+    public string modelPrefab;
     public string userName;
     public int gold;
     public int level;
-    [SerializeField] int startHealth;
+    public int startHealth;
     public int maxHealth;
     public int currentHealth;
-    [SerializeField] int healthMultiplier;
-    [SerializeField] int startMana;
+    public int healthMultiplier;
+    public int startMana;
     public int maxManaPoints;
     public int currentManaPoints;
-    [SerializeField] int manaMultiplier;
+    public int manaMultiplier;
     public int experiencePoints = 10;
     public int startStr;
     public int startDef;
@@ -39,12 +40,18 @@ public class CharacterSO : ScriptableObject
     public float criticalRate, chanceRate, goldRate, expRate;
     public int hitAtk, fireAtk, iceAtk, soulAtk,  thunderAtk;
     public float hitDef, fireDef, iceDef, soulDef, thunderDef;
-    public GameObject particleCritical, particleMiss, playerDamageText;
+    [SerializeField] private GameObject particleCritical, particleMiss;
     public float regenDelay;
     public float regenRate;
-    public Vector3 position;
+    //public Vector3 position;
     public int skillPointUsed;
     public int skillPointLeft;
+    public float x,y,z;
+
+    public Vector3 ReturnPosition()
+    {
+        return new Vector3(x,y,z);
+    }
     // Metode untuk menghitung total damage yang akan diterima oleh karakter
     public int CalculateDamageToPlayer(float amount, Element element, float randMin, float randMax)
     {

@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-//using Mirror;
 using UnityEngine.UI;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using UnityEngine.SceneManagement;
+using System.Threading;
 
 [System.Serializable]
 public class Account
@@ -18,6 +19,7 @@ public class Account
     public bool isOnline;
     public string email;
     public string loginCooldownEndTime;
+    public CharacterSO characterSO;
     public DateTime loginCooldownEndDateTime
     {
         get { return DateTime.Parse(loginCooldownEndTime); }
@@ -30,6 +32,7 @@ public class Account
         this.email = email;
         this.loginAttempts = 0;
         this.loginCooldownEndDateTime = DateTime.MinValue;
+        this.characterSO = ScriptableObject.CreateInstance<CharacterSO>();
     }
     public string HashPassword(string password)
     {
@@ -46,13 +49,35 @@ public static class AccountDatabase
 {
     public static List<Account> accounts = new List<Account>();
     private const int MaxLoginAttempts = 3;
-    private const int LoginCooldownMinutes = 10;
+    private const int LoginCooldownMinutes = 3;
     public static string errorText;
     private static string saveFilePath = Path.Combine(Application.dataPath, "accountData.json");
     public static void SaveData()
     {
-        string jsonData = JsonConvert.SerializeObject(accounts);
-        File.WriteAllText(saveFilePath, jsonData);
+        bool dataSaved = false;
+        int retryCount = 0;
+        const int maxRetryCount = 3; // Maximum number of retries
+
+        while (!dataSaved && retryCount < maxRetryCount)
+        {
+            try
+            {
+                string jsonData = JsonConvert.SerializeObject(accounts);
+                File.WriteAllText(saveFilePath, jsonData);
+                dataSaved = true; // Mark the data as saved to exit the loop
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception (you can log the error, display a message, etc.)
+                Debug.LogError("Error while saving data: " + ex.Message);
+
+                // Wait for a short time before the next retry (you can adjust the delay time)
+                Thread.Sleep(1000); // 1 second delay
+
+                // Increment the retry count
+                retryCount++;
+            }
+        }
     }
 
     public static void LoadData()
@@ -90,7 +115,7 @@ public static class AccountDatabase
         Debug.Log("Account field updated successfully!");
     }
 
-    public static bool RegisterAccount(string username, string password, string email)
+    public static bool SignUpAccount(string username, string password, string email)
     {
         // Validasi format email menggunakan regular expression
         if (!IsValidEmail(email) || EmailExists(email))
@@ -129,15 +154,17 @@ public static class AccountDatabase
         }
 
         errorText = string.Empty;
-        // Menambahkan akun baru ke dalam database
-        Account newAccount = new Account(username, password, email);
-        newAccount.passwordHash = newAccount.HashPassword(password);
-        accounts.Add(newAccount);
-        SaveData();
-        Debug.Log("Account registered successfully!");
         return true;
     }
-
+    public static void CreateAccount(string username, string password, string email, CharacterSO characterSO)
+    {
+        Account newAccount = new Account(username, password, email);
+        newAccount.passwordHash = newAccount.HashPassword(password);
+        newAccount.characterSO = characterSO;
+        accounts.Add(newAccount);
+        Debug.Log("Account registered successfully!");
+        SaveData();
+    }
     public static bool LoginAccount(string username, string password)
     {
         // Validasi username kosong
@@ -172,13 +199,9 @@ public static class AccountDatabase
         // Cek apakah akun sedang dalam cooldown
         if (account.loginCooldownEndDateTime > DateTime.Now)
         {
-            errorText = "Account is in cooldown. Please try again later after " + account.loginCooldownEndDateTime;
+            errorText = "Login is banned until  " + account.loginCooldownEndDateTime;
             return false;
-        } else
-        {
-            account.loginAttempts = 0;
         }
-
         // Verifikasi password
         bool passwordMatch = account.VerifyPassword(password);
         if (!passwordMatch)
@@ -197,7 +220,8 @@ public static class AccountDatabase
                 //Debug.Log("Account is in cooldown. Please try again later.");
             }
             return false;
-        }    
+        }
+   
         
         // Cek apakah akun sedang online
         if (account.isOnline)
@@ -227,7 +251,7 @@ public static class AccountDatabase
         Account account = GetAccount(username);
         if (account == null)
         {
-            errorText = $"Username {username}  not found!";
+            errorText = $"Username {username} not found!";
             return;
         }
 
@@ -273,7 +297,7 @@ public static class AccountDatabase
     {
         return accounts.Exists(account => account.email == email);
     }
-    private static Account GetAccount(string username)
+    public static Account GetAccount(string username)
     {
         return accounts.Find(account => account.username == username);
     }
@@ -281,22 +305,30 @@ public static class AccountDatabase
 
 public class ManajerLogin : MonoBehaviour
 {
+    [SerializeField] private GameObject panelSignUp, panelSignIn;
     [SerializeField] List<Account> accountList = new List<Account>();
     [SerializeField] private TMP_InputField usernameRegInput, usernameLogInput;
     [SerializeField] private TMP_InputField passwordRegInput,passwordLogInput;
+    [SerializeField] private Button toggleRegPassword, toggleLogPassword;
     [SerializeField] private TMP_InputField emailInput;
     [SerializeField] private Button registerButton;
     [SerializeField] private Button loginButton, logOutButton;
     [SerializeField] private TextMeshProUGUI validationRegText, validationLogText;
-
-    //private NetworkManager networkManager;
+    [SerializeField] private CharacterSO characterSO;
+    [SerializeField] private List<NewCharacter> listJob;
+    [SerializeField] private NewCharacter selectedCharacter;
+    [SerializeField] private GameObject showCharacter;
+    [SerializeField] private Transform slotParent;
+    [SerializeField] private GameObject go;
+    [SerializeField] private Button startGame;
+    private bool isVisible = false;
 
     private void Start()
     {
+        panelSignIn.SetActive(true);
+        panelSignUp.SetActive(false);
         AccountDatabase.LoadData();
         accountList = AccountDatabase.accounts;
-        // Mendapatkan instance NetworkManager
-        //networkManager = NetworkManager.singleton;
 
         // Menambahkan event listener untuk tombol register
         registerButton.onClick.AddListener(RegisterAccount);
@@ -306,15 +338,16 @@ public class ManajerLogin : MonoBehaviour
 
         // Menambahkan event listener untuk tombol logout
         logOutButton.onClick.AddListener(LogoutAccount);
+
+        toggleLogPassword.onClick.AddListener(() => TogglePassword(passwordLogInput));
+        toggleRegPassword.onClick.AddListener(() => TogglePassword(passwordRegInput));
+        startGame.onClick.AddListener(() => StartGame());   
     }
 
     private void RegisterAccount()
     {
-        string username = usernameRegInput.text;
-        string password = passwordRegInput.text;
-        string email = emailInput.text;
         // Memanggil fungsi RegisterAccount dari AccountDatabase
-        bool success = AccountDatabase.RegisterAccount(username, password, email);
+        bool success = AccountDatabase.SignUpAccount(usernameRegInput.text, passwordRegInput.text, emailInput.text);
         validationRegText.text = AccountDatabase.errorText;
         if (success)
         {
@@ -322,6 +355,11 @@ public class ManajerLogin : MonoBehaviour
 
             // Setelah pendaftaran, kita dapat langsung melakukan login
             //LoginAccount();
+            panelSignUp.SetActive(false);
+            panelSignIn.SetActive(false);
+            startGame.gameObject.SetActive(true);
+            DisplayCharacterSelector();
+            SelectCharacter(listJob[0]);     
         }
     }
 
@@ -335,7 +373,9 @@ public class ManajerLogin : MonoBehaviour
         if (success)
         {
             // Memanggil fungsi login dari NetworkManager jika berhasil login
-            ConnectToServer();
+            ContinueGame(username);
+            panelSignIn.SetActive(false);
+            panelSignUp.SetActive(false);
         }
     }
 
@@ -344,14 +384,129 @@ public class ManajerLogin : MonoBehaviour
         string username = usernameLogInput.text;
         AccountDatabase.LogoutAccount(username);
         validationLogText.text = AccountDatabase.errorText;
-        //networkManager.StopClient();
 
     }
-    private void ConnectToServer()
+
+    private void ContinueGame(string username)
     {
-        // Memanggil fungsi login dari NetworkManager
-        //networkManager.StartClient();
-
         Debug.Log("Connected to server!");
+        Account account = AccountDatabase.GetAccount(username);
+        OverrideCharacterSO(characterSO, account.characterSO);
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
+
+    private void TogglePassword(TMP_InputField inputField)
+    {
+        isVisible = !isVisible;
+        if(isVisible)
+        {
+            inputField.contentType = TMP_InputField.ContentType.Standard;
+        } else
+        {
+            inputField.contentType = TMP_InputField.ContentType.Password;    
+        }
+        // Mengganti karakter tersembunyi jika menggunakan Content Type Password
+        inputField.ForceLabelUpdate();    
+    }
+
+    private void DisplayCharacterSelector()
+    {
+        for(int i = 0; i < listJob.Count; i++)
+        {
+            GameObject slot = Instantiate(showCharacter, slotParent.transform.position, Quaternion.identity);
+            slot.transform.SetParent(slotParent.transform);
+            slot.transform.localScale = Vector3.one;
+            Button selectCharacter = slot.transform.Find("Button").GetComponent<Button>();
+            Image icon = slot.transform.Find("RoleIcon").transform.Find("Icon").GetComponent<Image>();
+            Image bgIcon = slot.transform.Find("Background").GetComponent<Image>();
+            TextMeshProUGUI nameText =  slot.transform.Find("Name").GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI descText =  slot.transform.Find("Desc").GetComponent<TextMeshProUGUI>();
+            nameText.text = listJob[i].name;
+            descText.text = listJob[i].description;
+            icon.sprite = listJob[i].sprite;
+            int index = i;
+            selectCharacter.onClick.RemoveAllListeners();
+            selectCharacter.onClick.AddListener(() => SelectCharacter(listJob[index]));   
+            bgIcon.sprite = listJob[i].backgroundSprite;         
+        }
+    }
+    private void SelectCharacter(NewCharacter selected)
+    {
+        selectedCharacter = selected;
+        if(go != null)
+        {
+            Destroy(go.gameObject);
+        }
+        go = Instantiate(Resources.Load<GameObject>(selected.modelPrefab), new Vector3(1.5f,0f,-7f), Quaternion.identity);
+        go.transform.Rotate(new Vector3(0,200,0));
+        OverrideCharacterSO(characterSO, selectedCharacter.characterSO);
+        AccountDatabase.SaveData();
+    }
+    
+    private void OverrideCharacterSO(CharacterSO asIs, CharacterSO newCharacterSO)
+    {
+        asIs.x = newCharacterSO.x;
+        asIs.y = newCharacterSO.y;
+        asIs.z = newCharacterSO.z;
+        asIs.chanceRate = newCharacterSO.chanceRate;
+        asIs.criticalRate = newCharacterSO.criticalRate;
+        asIs.curDef = newCharacterSO.curDef;
+        asIs.curMagic = newCharacterSO.curMagic;
+        asIs.currentHealth = newCharacterSO.currentHealth;
+        asIs.currentManaPoints = newCharacterSO.currentManaPoints;
+        asIs.curStr= newCharacterSO.curStr;
+        asIs.defMultiplier = newCharacterSO.defMultiplier;    
+        asIs.experiencePoints = newCharacterSO.experiencePoints;
+        asIs.expRate = newCharacterSO.expRate;
+        asIs.fireAtk = newCharacterSO.fireAtk;
+        asIs.fireDef= newCharacterSO.fireDef;
+        asIs.gold = newCharacterSO.gold;  
+        asIs.goldRate = newCharacterSO.goldRate;
+        asIs.healthMultiplier = newCharacterSO.healthMultiplier;
+        asIs.hitAtk = newCharacterSO.hitAtk;
+        asIs.hitDef = newCharacterSO.hitDef;
+        asIs.iceAtk = newCharacterSO.iceAtk;
+        asIs.iceDef = newCharacterSO.iceDef;
+        asIs.job = newCharacterSO.job;
+        asIs.level = newCharacterSO.level;
+        asIs.magicMultiplier = newCharacterSO.magicMultiplier;
+        asIs.manaMultiplier = newCharacterSO.manaMultiplier;
+        asIs.maxManaPoints = newCharacterSO.maxManaPoints;
+        asIs.maxHealth = newCharacterSO.maxHealth;
+        asIs.modelPrefab = newCharacterSO.modelPrefab;
+        //asIs.particleCritical = newCharacterSO.particleCritical;
+        //asIs.particleMiss = newCharacterSO.particleMiss;
+        //asIs.playerDamageText = newCharacterSO.playerDamageText;
+        asIs.regenDelay = newCharacterSO.regenDelay;
+        asIs.regenRate = newCharacterSO.regenRate;
+        asIs.skillPointLeft = newCharacterSO.skillPointLeft;
+        asIs.skillPointUsed = newCharacterSO.skillPointUsed;
+        asIs.soulAtk = newCharacterSO.soulAtk;
+        asIs.soulDef = newCharacterSO.soulDef;
+        asIs.startDef = newCharacterSO.startDef;
+        asIs.startHealth = newCharacterSO.startHealth;
+        asIs.startMagic = newCharacterSO.startMagic;
+        asIs.startMana = newCharacterSO.startMana;
+        asIs.startStr = newCharacterSO.startStr;
+        asIs.strMultiplier = newCharacterSO.strMultiplier;
+        asIs.thunderAtk = newCharacterSO.thunderAtk;
+        asIs.thunderDef = newCharacterSO.thunderDef;
+        asIs.userName = newCharacterSO.userName;
+    }
+    private void StartGame()
+    {
+        AccountDatabase.CreateAccount(usernameRegInput.text,passwordRegInput.text,emailInput.text,selectedCharacter.characterSO);
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
+    }
+}
+
+[System.Serializable]
+public class NewCharacter
+{
+    public string modelPrefab;
+    public CharacterSO characterSO;
+    public string name;
+    public string description;
+    public Sprite sprite;
+    public Sprite backgroundSprite;
 }

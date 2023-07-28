@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySprite: {fileID: 21300000, guid: 5a9f75ba1709a4b6f81c9c2416283e6f, type: 3}
   enemyName: Bug
-  enemyHealth: 150
+  enemyHealth: 15000
   enemyMinAttackRate: 0.5
   enemyMaxAttackRate: 1.4
   enemyExp: 5
@@ -22,7 +22,7 @@ MonoBehaviour:
   enemyDef: 5
   enemyLevel: 0
   enemyWalkSpeed: 1
-  enemyIntervalMove: 5
+  enemyIntervalMove: 2
   enemyMoveRadius: 3
   enemyDetectRadius: 2
   enemyAttack:

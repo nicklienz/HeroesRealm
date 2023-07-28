@@ -16,7 +16,7 @@ MonoBehaviour:
   consume: 1
   itemName: Default
   itemDesc: Default
-  prefab: {fileID: 0}
+  prefab: {fileID: 3832907126045494399, guid: 3617e4093ca8d5145986d37c89cfd692, type: 3}
   itemIcon: {fileID: 0}
   hargaBeli: 0
   hargaJual: 0

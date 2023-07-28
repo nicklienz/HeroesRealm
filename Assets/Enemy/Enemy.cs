@@ -56,6 +56,8 @@ public class Enemy : MonoBehaviour
     public void EnemyDead(Character character)
     {
         enemySO.LootItemEnemyDie(transform);
+        Vector3Int tilePos = ManajerTiles.Instance.tempTilemap.WorldToCell(this.transform.position);
+        ManajerTiles.Instance.RemoveTile(tilePos);
         Destroy(gameObject, 0f);
         GameObject go = Instantiate(enemySO.particleDead, transform.position, Quaternion.identity);
         Destroy(go, 1f);
